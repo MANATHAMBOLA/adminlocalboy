@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LOCAL BOY - Admin Login</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase Web SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        /* Premium Dark Theme Background */
+        body { 
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 20px; 
+        }
+
+        .login-card { 
+            background-color: #1e293b; 
+            width: 100%; 
+            max-width: 400px; 
+            border-radius: 24px; 
+            padding: 40px 30px; 
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); 
+            border: 1px solid #334155;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Subtle Glow Effect */
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: -50px;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 82, 0, 0.2);
+            filter: blur(50px);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .content-wrapper { position: relative; z-index: 1; }
+
+        .brand-header { text-align: center; margin-bottom: 40px; }
+        .admin-badge {
+            background: rgba(255, 82, 0, 0.1);
+            color: #ff5200;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid rgba(255, 82, 0, 0.3);
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .brand-text { font-size: 32px; font-weight: 800; color: #ffffff; letter-spacing: -1px; display: flex; justify-content: center; align-items: center; gap: 8px;}
+        .brand-text i { color: #ff5200; font-size: 28px; }
+
+        .input-group { margin-bottom: 20px; position: relative; }
+        .input-group label { display: block; font-size: 12px; color: #94a3b8; font-weight: 600; margin-bottom: 8px; letter-spacing: 0.5px;}
+        
+        .input-box {
+            display: flex;
+            align-items: center;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 14px;
+            padding: 0 15px;
+            transition: all 0.3s ease;
+        }
+        .input-box:focus-within { border-color: #ff5200; box-shadow: 0 0 0 3px rgba(255, 82, 0, 0.15); }
+        
+        .input-box i { color: #64748b; font-size: 16px; width: 25px; }
+        .input-box input { 
+            flex: 1; 
+            border: none; 
+            background: transparent; 
+            outline: none; 
+            padding: 15px 0; 
+            color: #ffffff; 
+            font-size: 14px; 
+            font-weight: 500;
+        }
+        .input-box input::placeholder { color: #475569; }
+
+        .eye-btn { cursor: pointer; color: #94a3b8; transition: 0.2s; }
+        .eye-btn:hover { color: #ffffff; }
+
+        .login-btn { 
+            width: 100%; 
+            background: linear-gradient(135deg, #ff5200 0%, #e64a00 100%); 
+            color: white; 
+            padding: 16px; 
+            border: none; 
+            border-radius: 14px; 
+            font-size: 15px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            margin-top: 15px;
+            box-shadow: 0 8px 20px rgba(255, 82, 0, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        .login-btn:active { transform: scale(0.98); }
+        .login-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+        .error-msg { 
+            background: rgba(239, 68, 68, 0.1); 
+            border: 1px solid rgba(239, 68, 68, 0.3); 
+            color: #fca5a5; 
+            padding: 10px; 
+            border-radius: 10px; 
+            font-size: 12px; 
+            text-align: center; 
+            margin-top: 15px; 
+            display: none; 
+            font-weight: 500;
+        }
+
+        .footer-text { text-align: center; font-size: 11px; color: #475569; margin-top: 30px; font-weight: 500;}
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="content-wrapper">
+            <div class="brand-header">
+                <div class="admin-badge">Admin Portal</div>
+                <div class="brand-text">
+                    <i class="fa-solid fa-layer-group"></i> LOCAL BOY
+                </div>
+            </div>
+
+            <form id="adminLoginForm" onsubmit="event.preventDefault(); processLogin();">
+                <div class="input-group">
+                    <label>EMAIL ADDRESS</label>
+                    <div class="input-box">
+                        <i class="fa-regular fa-envelope"></i>
+                        <input type="email" id="adminEmail" placeholder="Enter admin email" required autocomplete="email">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>PASSWORD</label>
+                    <div class="input-box">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="adminPassword" placeholder="Enter password" required autocomplete="current-password">
+                        <i class="fa-regular fa-eye eye-btn" id="togglePassword" onclick="togglePass()"></i>
+                    </div>
+                </div>
+
+                <button type="submit" class="login-btn" id="loginBtn">
+                    Secure Login <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                </button>
+
+                <div class="error-msg" id="errorMsg"></div>
+            </form>
+
+            <div class="footer-text">
+                &copy; 2024 Local Boy. Authorized Personnel Only.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyC9PnjAdBeOEy0TLQvUBJUznlZFKSS82uI",
+            authDomain: "sri-vishnu-priya-finance-c591f.firebaseapp.com",
+            databaseURL: "https://sri-vishnu-priya-finance-c591f-default-rtdb.firebaseio.com",
+            projectId: "sri-vishnu-priya-finance-c591f"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        // Auto redirect if already logged in as admin
+        window.onload = function() {
+            if(localStorage.getItem('adminAuth') === 'true') {
+                window.location.replace("dashboard.html");
+            }
+        };
+
+        // Password Visibility Toggle
+        function togglePass() {
+            const passInput = document.getElementById('adminPassword');
+            const icon = document.getElementById('togglePassword');
+            if (passInput.type === "password") {
+                passInput.type = "text";
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passInput.type = "password";
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Handle Login
+        function processLogin() {
+            const email = document.getElementById('adminEmail').value.trim();
+            const password = document.getElementById('adminPassword').value.trim();
+            const btn = document.getElementById('loginBtn');
+            const errorDiv = document.getElementById('errorMsg');
+
+            if (!email || !password) return;
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Authenticating...';
+            errorDiv.style.display = 'none';
+
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Success
+                    localStorage.setItem('adminAuth', 'true');
+                    localStorage.setItem('adminEmail', email);
+                    
+                    btn.style.background = "#10b981";
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i> Login Success';
+                    
+                    setTimeout(() => {
+                        window.location.replace("dashboard.html");
+                    }, 800);
+                })
+                .catch((error) => {
+                    // Error Handling
+                    btn.disabled = false;
+                    btn.innerHTML = 'Secure Login <i class="fa-solid fa-arrow-right-to-bracket"></i>';
+                    
+                    let errorMsg = "Login failed. Please try again.";
+                    if(error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                        errorMsg = "Invalid Admin Credentials.";
+                    } else if (error.code === 'auth/invalid-email') {
+                        errorMsg = "Please enter a valid email address.";
+                    } else if (error.code === 'auth/network-request-failed') {
+                        errorMsg = "Network error. Check your internet connection.";
+                    }
+                    
+                    errorDiv.innerText = errorMsg;
+                    errorDiv.style.display = 'block';
+                });
+        }
+    </script>
+</body>
+</html>
