@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LOCAL BOY Admin - Live Orders</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: #f1f5f9; color: #1e293b; display: flex; height: 100vh; overflow: hidden; }
+        
+        /* Mobile Overlay */
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99; display: none; }
+        
+        /* Sidebar Fixed Setup */
+        .sidebar { width: 260px; background: #0f172a; color: #fff; display: flex; flex-direction: column; height: 100vh; transition: 0.3s; z-index: 100; box-shadow: 4px 0 20px rgba(0,0,0,0.05);}
+        .brand { padding: 25px 20px; font-size: 22px; font-weight: 800; color: #fff; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1e293b; }
+        .brand-logo { display: flex; align-items: center; gap: 10px; }
+        .brand-logo i { color: #ff5200; font-size: 24px;}
+        .close-sidebar { display: none; font-size: 24px; cursor: pointer; color: #94a3b8; }
+        
+        .nav-links { flex: 1; overflow-y: auto; padding: 20px 15px; scrollbar-width: none; }
+        .nav-links::-webkit-scrollbar { display: none; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 14px 18px; color: #94a3b8; font-size: 14px; font-weight: 600; border-radius: 12px; margin-bottom: 8px; cursor: pointer; transition: 0.3s; text-decoration: none;}
+        .nav-item:hover { background: rgba(255, 82, 0, 0.1); color: #ff5200; }
+        .nav-item.active { background: #ff5200; color: #fff; box-shadow: 0 4px 15px rgba(255, 82, 0, 0.3);}
+        
+        /* Premium Logout Button */
+        .sidebar-footer { padding: 20px; border-top: 1px solid #1e293b; margin-top: auto; }
+        .logout-btn { display: flex; justify-content: center; align-items: center; gap: 10px; background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 14px; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 14px; border: 1px solid rgba(239, 68, 68, 0.2); transition: 0.3s;}
+        .logout-btn:hover { background: #ef4444; color: #fff; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); border-color: #ef4444;}
+        .logout-btn:active { transform: scale(0.96); }
+
+        /* Main Content */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; width: 100%; }
+        
+        /* Top Header */
+        .top-header { background: #fff; padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.02); z-index: 10;}
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .menu-toggle { display: none; font-size: 24px; cursor: pointer; color: #0f172a; }
+
+        /* Tabs Section */
+        .tabs-container { display: flex; background: #fff; padding: 0 25px; border-bottom: 1px solid #e2e8f0; overflow-x: auto; scrollbar-width: none;}
+        .tabs-container::-webkit-scrollbar { display: none; }
+        .tab { padding: 15px 20px; font-size: 14px; font-weight: 700; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; white-space: nowrap; display: flex; align-items: center; gap: 8px;}
+        .tab.active { color: #ff5200; border-bottom-color: #ff5200; }
+        .badge { background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 800;}
+        .tab.active .badge { background: #ff5200; color: #fff; }
+
+        /* Orders Body */
+        .orders-body { flex: 1; padding: 25px; overflow-y: auto; }
+        .orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        
+        .order-card { background: #fff; border-radius: 16px; border: 1px solid #e2e8f0; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); position: relative; }
+        .order-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #e2e8f0;}
+        .order-id { font-size: 15px; font-weight: 800; color: #0f172a;}
+        .order-time { font-size: 11px; color: #64748b; font-weight: 500; margin-top: 2px;}
+        .status-badge { font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 8px; text-transform: uppercase;}
+        
+        .status-placed { background: #fef3c7; color: #d97706; border: 1px solid #fde68a;}
+        .status-preparing { background: #e0e7ff; color: #4f46e5; border: 1px solid #c7d2fe;}
+        .status-ready { background: #ffedd5; color: #ea580c; border: 1px solid #fed7aa;}
+        .status-delivered { background: #ecfdf5; color: #10b981; border: 1px solid #a7f3d0;}
+        .status-cancelled { background: #fef2f2; color: #ef4444; border: 1px solid #fecaca;}
+
+        .customer-info { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+        .cust-avatar { width: 35px; height: 35px; border-radius: 50%; background: #f1f5f9; color: #475569; display: flex; justify-content: center; align-items: center; font-size: 14px;}
+        .cust-details h4 { font-size: 13px; font-weight: 700; color: #1e293b;}
+        .cust-details p { font-size: 11px; color: #64748b; font-weight: 500;}
+
+        .items-list { background: #f8fafc; padding: 12px; border-radius: 10px; font-size: 12px; font-weight: 600; color: #475569; line-height: 1.6; margin-bottom: 15px;}
+        
+        .order-total { display: flex; justify-content: space-between; align-items: center; font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 15px;}
+        
+        .action-btns { display: flex; gap: 10px; }
+        .btn { flex: 1; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; text-align: center; transition: 0.2s; border: none;}
+        .btn:active { transform: scale(0.96); }
+        .btn-outline { background: transparent; border: 1px solid #e2e8f0; color: #475569;}
+        .btn-outline:hover { background: #f1f5f9; }
+        .btn-primary { background: #ff5200; color: #fff;}
+        .btn-primary:hover { background: #e64a00; }
+        .btn-success { background: #10b981; color: #fff;}
+        .btn-danger { background: #ef4444; color: #fff;}
+
+        .empty-state { text-align: center; padding: 50px 20px; grid-column: 1 / -1;}
+        .empty-state i { font-size: 40px; color: #cbd5e0; margin-bottom: 15px;}
+        .empty-state h3 { font-size: 16px; font-weight: 700; color: #1e293b;}
+
+        @media (max-width: 768px) {
+            .sidebar { position: fixed; left: -260px; height: 100%; }
+            .sidebar.open { left: 0; }
+            .sidebar-overlay.show { display: block; }
+            .menu-toggle, .close-sidebar { display: block; }
+            .orders-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="brand">
+            <div class="brand-logo"><i class="fa-solid fa-layer-group"></i> LOCAL BOY</div>
+            <i class="fa-solid fa-xmark close-sidebar" onclick="toggleSidebar()"></i>
+        </div>
+        <div class="nav-links">
+            <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+            <a href="orders.html" class="nav-item active"><i class="fa-solid fa-bell"></i> Live Orders</a>
+            <a href="restaurants.html" class="nav-item"><i class="fa-solid fa-store"></i> Restaurants</a>
+            <a href="menu.html" class="nav-item"><i class="fa-solid fa-utensils"></i> Menu & Groceries</a>
+            <a href="delivery.html" class="nav-item"><i class="fa-solid fa-motorcycle"></i> Delivery Boys</a>
+            <a href="customers.html" class="nav-item"><i class="fa-solid fa-users"></i> Customers</a>
+            <a href="payouts.html" class="nav-item"><i class="fa-solid fa-file-invoice-dollar"></i> Settlements</a>
+        </div>
+        <div class="sidebar-footer">
+            <div class="logout-btn" onclick="logoutAdmin()">
+                <i class="fa-solid fa-power-off"></i> Secure Logout
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Header -->
+        <div class="top-header">
+            <div class="header-left">
+                <i class="fa-solid fa-bars menu-toggle" onclick="toggleSidebar()"></i>
+                <h2 style="font-size: 20px; font-weight: 800;">Order Management</h2>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs-container">
+            <div class="tab active" onclick="switchTab('Placed', this)">New Orders <span class="badge" id="badgePlaced">0</span></div>
+            <div class="tab" onclick="switchTab('Preparing', this)">Preparing <span class="badge" id="badgePreparing">0</span></div>
+            <div class="tab" onclick="switchTab('Ready', this)">Ready to Deliver <span class="badge" id="badgeReady">0</span></div>
+            <div class="tab" onclick="switchTab('Completed', this)">Completed <span class="badge" id="badgeCompleted">0</span></div>
+        </div>
+
+        <!-- Orders Body -->
+        <div class="orders-body">
+            <div class="orders-grid" id="ordersContainer">
+                <!-- Orders injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Security Check
+        if(localStorage.getItem('adminAuth') !== 'true') {
+            window.location.replace("index.html");
+        }
+
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyC9PnjAdBeOEy0TLQvUBJUznlZFKSS82uI",
+            authDomain: "sri-vishnu-priya-finance-c591f.firebaseapp.com",
+            databaseURL: "https://sri-vishnu-priya-finance-c591f-default-rtdb.firebaseio.com",
+            projectId: "sri-vishnu-priya-finance-c591f"
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const database = firebase.database();
+
+        let allOrders = [];
+        let currentTab = 'Placed';
+
+        // Dummy Menu Map for item names
+        const menuDB = {
+            '1': 'Chicken Dum Biryani', '2': 'Paneer Butter Masala', '3': 'Chicken 65',
+            'g1': 'Onions (Medium)', 'g2': 'Fresh Tomatoes', 'g3': 'Amul Taaza Milk',
+            'g4': 'Farm Fresh Chicken', 'g6': 'Sona Masoori Rice (25kg)', 'g12': 'Dolo 650 Tablets'
+        };
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('overlay').classList.toggle('show');
+        }
+
+        function logoutAdmin() {
+            if(confirm("Logout from Admin Panel?")) {
+                localStorage.removeItem('adminAuth');
+                window.location.replace("index.html");
+            }
+        }
+
+        // Fetch Live Orders
+        window.onload = function() {
+            database.ref('orders').on('value', (snapshot) => {
+                allOrders = [];
+                let counts = { Placed: 0, Preparing: 0, Ready: 0, Completed: 0 };
+                
+                if (snapshot.exists()) {
+                    snapshot.forEach(child => {
+                        let order = child.val();
+                        order.firebaseKey = child.key; // Store key to update status
+                        allOrders.push(order);
+                        
+                        if(order.status === 'Placed') counts.Placed++;
+                        else if(order.status === 'Preparing') counts.Preparing++;
+                        else if(order.status === 'Ready' || order.status === 'On the Way') counts.Ready++;
+                        else counts.Completed++;
+                    });
+                }
+                
+                // Sort by newest first
+                allOrders.sort((a, b) => b.timestamp - a.timestamp);
+                
+                // Update Badges
+                document.getElementById('badgePlaced').innerText = counts.Placed;
+                document.getElementById('badgePreparing').innerText = counts.Preparing;
+                document.getElementById('badgeReady').innerText = counts.Ready;
+                document.getElementById('badgeCompleted').innerText = counts.Completed;
+
+                renderOrders();
+            });
+        };
+
+        function switchTab(status, element) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            element.classList.add('active');
+            currentTab = status;
+            renderOrders();
+        }
+
+        function renderOrders() {
+            const container = document.getElementById('ordersContainer');
+            container.innerHTML = '';
+            
+            let filteredOrders = allOrders.filter(o => {
+                if(currentTab === 'Completed') return o.status === 'Delivered' || o.status === 'Cancelled';
+                if(currentTab === 'Ready') return o.status === 'Ready' || o.status === 'On the Way';
+                return o.status === currentTab;
+            });
+
+            if(filteredOrders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fa-solid fa-box-open"></i>
+                        <h3>No orders found in this section.</h3>
+                    </div>`;
+                return;
+            }
+
+            filteredOrders.forEach(order => {
+                // Parse Time
+                const d = new Date(order.timestamp);
+                const timeStr = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+                
+                // Parse Items
+                let itemsHtml = '';
+                for(let id in order.items) {
+                    let name = menuDB[id] || 'Unknown Item';
+                    itemsHtml += `${order.items[id]} x ${name}<br>`;
+                }
+
+                // Determine Badge Class
+                let badgeCls = 'status-placed';
+                if(order.status === 'Preparing') badgeCls = 'status-preparing';
+                if(order.status === 'Ready' || order.status === 'On the Way') badgeCls = 'status-ready';
+                if(order.status === 'Delivered') badgeCls = 'status-delivered';
+                if(order.status === 'Cancelled') badgeCls = 'status-cancelled';
+
+                // Action Buttons Logic
+                let actionBtns = '';
+                if(order.status === 'Placed') {
+                    actionBtns = `
+                        <button class="btn btn-outline" onclick="changeStatus('${order.firebaseKey}', 'Cancelled')">Reject</button>
+                        <button class="btn btn-primary" onclick="changeStatus('${order.firebaseKey}', 'Preparing')">Accept & Prepare</button>
+                    `;
+                } else if(order.status === 'Preparing') {
+                    actionBtns = `
+                        <button class="btn btn-success" style="width:100%;" onclick="changeStatus('${order.firebaseKey}', 'Ready')">Mark as Ready</button>
+                    `;
+                } else if(order.status === 'Ready') {
+                    actionBtns = `
+                        <button class="btn btn-outline" onclick="assignDelivery('${order.firebaseKey}')">Assign Delivery Boy</button>
+                        <button class="btn btn-success" onclick="changeStatus('${order.firebaseKey}', 'Delivered')">Mark Delivered</button>
+                    `;
+                } else if(order.status === 'On the Way') {
+                    actionBtns = `
+                        <button class="btn btn-outline" disabled>Out for Delivery</button>
+                        <button class="btn btn-success" onclick="changeStatus('${order.firebaseKey}', 'Delivered')">Mark Delivered</button>
+                    `;
+                }
+
+                container.innerHTML += `
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div>
+                                <div class="order-id">#${order.orderId}</div>
+                                <div class="order-time">${timeStr}</div>
+                            </div>
+                            <div class="status-badge ${badgeCls}">${order.status}</div>
+                        </div>
+                        
+                        <div class="customer-info">
+                            <div class="cust-avatar"><i class="fa-solid fa-user"></i></div>
+                            <div class="cust-details">
+                                <h4>Customer ID: ${order.customerId.slice(-4)}</h4>
+                                <p><i class="fa-solid fa-location-dot"></i> Delivery requested</p>
+                            </div>
+                        </div>
+
+                        <div class="items-list">${itemsHtml}</div>
+                        
+                        <div class="order-total">
+                            <span>Total Bill</span>
+                            <span>₹${order.totalAmount}</span>
+                        </div>
+                        
+                        <div class="action-btns">${actionBtns}</div>
+                    </div>
+                `;
+            });
+        }
+
+        // Update Firebase Status
+        function changeStatus(key, newStatus) {
+            let msg = newStatus === 'Cancelled' ? "Are you sure you want to REJECT this order?" : "Update status to " + newStatus + "?";
+            if(confirm(msg)) {
+                database.ref('orders/' + key).update({ status: newStatus });
+            }
+        }
+
+        // Mock function for assigning delivery boy (Will expand later)
+        function assignDelivery(key) {
+            alert("Delivery Boy Assignment Popup will open here!");
+            // Temporary auto-update for demo
+            database.ref('orders/' + key).update({ status: 'On the Way' });
+        }
+    </script>
+</body>
+</html>
