@@ -156,61 +156,55 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
 
-        // Your specific Firebase Config
+        // PERFECT FIREBASE CONFIGURATION (Miss ayina details anni add chesanu)
         const firebaseConfig = {
             apiKey: "AIzaSyCnFpeVwtaQ1u0_zrY3o50qQGE1SFZj0E0",
             authDomain: "sri-vishnu-priya-finance-c591f.firebaseapp.com",
+            databaseURL: "https://sri-vishnu-priya-finance-c591f-default-rtdb.firebaseio.com",
             projectId: "sri-vishnu-priya-finance-c591f",
-            storageBucket: "sri-vishnu-priya-finance-c591f.firebasestorage.app"
+            storageBucket: "sri-vishnu-priya-finance-c591f.firebasestorage.app",
+            messagingSenderId: "184676228358",
+            appId: "1:184676228358:web:c2b32b68debeeadadfd287",
+            measurementId: "G-E3TT96ZH1T"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // 1. If already logged in, skip login page and go direct to dashboard
+        // Auto-login check
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 window.location.href = "dashboard.html";
             }
         });
 
-        // 2. Handle Login Form Submit
+        // Form Submission
         document.getElementById('loginForm').addEventListener('submit', (e) => {
-            e.preventDefault(); // Prevents the 'eyeblink' page reload
+            e.preventDefault();
 
             const email = document.getElementById('email').value;
             const pass = document.getElementById('password').value;
             const errorDiv = document.getElementById('errorMsg');
             const btn = document.getElementById('loginBtn');
 
-            // Show loading state
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
             btn.style.opacity = '0.8';
             btn.disabled = true;
 
-            // Firebase Sign In
             signInWithEmailAndPassword(auth, email, pass)
                 .then((userCredential) => {
-                    // Success: Redirect to dashboard
                     errorDiv.style.display = 'none';
                     window.location.href = 'dashboard.html';
                 })
                 .catch((error) => {
-                    // Failed: Show specific error message
-                    let errorMessage = "Invalid Email or Password!";
-                    if(error.code === 'auth/user-not-found') errorMessage = "Admin account not found!";
-                    if(error.code === 'auth/wrong-password') errorMessage = "Incorrect password!";
-                    if(error.code === 'auth/too-many-requests') errorMessage = "Too many attempts. Try again later.";
-
-                    errorDiv.innerText = errorMessage;
+                    // Exact error chupisthundi
+                    errorDiv.innerText = error.message.replace("Firebase: ", "");
                     errorDiv.style.display = 'block';
                     
-                    // Reset Button
                     btn.innerHTML = 'Login to Dashboard';
                     btn.style.opacity = '1';
                     btn.disabled = false;
                     
-                    // Shake animation for card
                     const card = document.querySelector('.login-card');
                     card.style.transform = 'translateX(-10px)';
                     setTimeout(() => card.style.transform = 'translateX(10px)', 100);
