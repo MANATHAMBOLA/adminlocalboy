@@ -44,7 +44,8 @@
         
         .action-btn { background: rgba(255, 255, 255, 0.05); color: #ccc; border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.3s; display: flex; align-items: center; gap: 5px;}
         .action-btn.edit:hover { background: #f59e0b; color: #fff; border-color: #f59e0b; }
-        
+        .action-btn.delete:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
+
         /* Toggle Switch */
         .switch { position: relative; display: inline-block; width: 40px; height: 22px; margin-left: auto;}
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -146,11 +147,11 @@
         </div>
 
         <div class="rest-grid" id="restaurantsGrid">
-            <p style="color: #888; grid-column: 1/-1; text-align: center;">Loading Restaurants...</p>
+            <p id="loadingMsg" style="color: #888; grid-column: 1/-1; text-align: center;"><i class="fas fa-spinner fa-spin"></i> Loading Restaurants...</p>
         </div>
     </main>
 
-    <!-- LARGE MODAL FOR ADD/EDIT RESTAURANT -->
+    <!-- MODAL FOR ADD/EDIT RESTAURANT -->
     <div class="modal-overlay" id="restModal">
         <div class="modal-card">
             <i class="fas fa-xmark close-modal" onclick="closeModal('restModal')"></i>
@@ -188,7 +189,6 @@
                     
                     <div class="full-width map-wrapper">
                         <div id="map"></div>
-                        <!-- BLUE DOT GPS BUTTON -->
                         <button type="button" class="gps-btn" id="gpsBtn" title="Get Current Location"><i class="fas fa-location-crosshairs"></i></button>
                     </div>
                     <div class="form-group"><label>Latitude</label><input type="text" id="rLat" readonly required></div>
@@ -213,8 +213,7 @@
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
-        import { getDatabase, ref, push, onValue, update } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
-        // UPDATED: Using explicit uploadBytes instead of uploadBytesResumable to prevent infinite hanging
+        import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
         import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-storage.js";
 
         // NEW API KEY INTEGRATED
@@ -363,7 +362,7 @@
             if(!editId) profileData.status = 'Open'; 
 
             try {
-                // FIXED IMAGE UPLOAD (Using uploadBytes directly to throw error immediately if failed)
+                // FIXED UPLOAD LOGIC: Using uploadBytes directly with try/catch
                 if(restSelectedFile) {
                     const fileName = `restaurants/${Date.now()}_${restSelectedFile.name}`;
                     const storageRefObj = sRef(storage, fileName);
@@ -371,7 +370,6 @@
                     profileData.image = await getDownloadURL(snapshot.ref);
                     profileData.storage_path = fileName;
                 } else if(editId) {
-                    // Keep existing image if not changed
                     profileData.image = document.getElementById('previewRestImage').src;
                     profileData.storage_path = document.getElementById('existingImagePath').value;
                 }
@@ -385,7 +383,8 @@
                 btn.innerText = "Save Restaurant Profile"; btn.disabled = false;
                 closeModal('restModal');
             } catch (error) {
-                alert("Failed to save. Please check your Firebase Storage Rules. Error: " + error.message);
+                // EXPLICIT ERROR ALERT SO IT DOESNT GET STUCK SILENTLY
+                alert("Action Failed! Error: " + error.message + "\n\nTip: Check Firebase Storage/Database Rules.");
                 btn.innerText = "Save Restaurant Profile"; btn.disabled = false;
             }
         });
@@ -417,6 +416,7 @@
                             
                             <div class="rest-actions">
                                 <button class="action-btn edit edit-btn" data-key="${key}"><i class="fas fa-pen"></i> Edit Profile</button>
+                                <button class="action-btn delete del-btn" data-key="${key}"><i class="fas fa-trash"></i> Delete</button>
                                 
                                 <label class="switch" title="Open/Close Store">
                                     <input type="checkbox" class="toggle-rest-status" data-key="${key}" ${isOpen ? 'checked' : ''}>
@@ -430,10 +430,15 @@
             } else {
                 restGrid.innerHTML = '<p style="color: #888; grid-column: 1/-1; text-align: center;">No restaurants added yet.</p>';
             }
+        }, (error) => {
+            // CATCH DATABASE CONNECTION ERRORS
+            alert("Database Error: " + error.message);
+            document.getElementById('loadingMsg').innerText = "Failed to load database. Check Firebase Rules.";
         });
 
-        // Event Delegation for Edit and Toggle
+        // Event Delegation for Edit, Delete and Toggle
         restGrid.addEventListener('click', (e) => {
+            // EDIT ACTION
             const editBtn = e.target.closest('.edit-btn');
             if(editBtn) {
                 const key = editBtn.getAttribute('data-key');
@@ -478,6 +483,16 @@
                 }, 300);
             }
 
+            // DELETE ACTION
+            const delBtn = e.target.closest('.del-btn');
+            if(delBtn) {
+                const key = delBtn.getAttribute('data-key');
+                if(confirm("Are you sure you want to completely delete this Restaurant?")) {
+                    remove(ref(db, `restaurant_profiles/${key}`));
+                }
+            }
+
+            // TOGGLE STATUS
             if(e.target.classList.contains('toggle-rest-status')) {
                 const key = e.target.getAttribute('data-key');
                 const newStatus = e.target.checked ? 'Open' : 'Closed';
