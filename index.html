@@ -156,16 +156,15 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
 
-        // PERFECT FIREBASE CONFIGURATION (Miss ayina details anni add chesanu)
+        // MEE FIREBASE CONSOLE NUNDI EXACT CONFIG NI IKKADA PASTE CHEYANDI
         const firebaseConfig = {
-            apiKey: "AIzaSyCnFpeVwtaQ1u0_zrY3o50qQGE1SFZj0E0",
-            authDomain: "sri-vishnu-priya-finance-c591f.firebaseapp.com",
-            databaseURL: "https://sri-vishnu-priya-finance-c591f-default-rtdb.firebaseio.com",
-            projectId: "sri-vishnu-priya-finance-c591f",
-            storageBucket: "sri-vishnu-priya-finance-c591f.firebasestorage.app",
-            messagingSenderId: "184676228358",
-            appId: "1:184676228358:web:c2b32b68debeeadadfd287",
-            measurementId: "G-E3TT96ZH1T"
+            apiKey: "MEE_API_KEY_IKKADA_PETTANDI",
+            authDomain: "MEE_AUTH_DOMAIN_IKKADA_PETTANDI",
+            databaseURL: "MEE_DATABASE_URL_IKKADA_PETTANDI",
+            projectId: "MEE_PROJECT_ID_IKKADA_PETTANDI",
+            storageBucket: "MEE_STORAGE_BUCKET_IKKADA_PETTANDI",
+            messagingSenderId: "MEE_MESSAGING_SENDER_ID",
+            appId: "MEE_APP_ID"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -197,7 +196,6 @@
                     window.location.href = 'dashboard.html';
                 })
                 .catch((error) => {
-                    // Exact error chupisthundi
                     errorDiv.innerText = error.message.replace("Firebase: ", "");
                     errorDiv.style.display = 'block';
                     
