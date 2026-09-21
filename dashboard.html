@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Boy - Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { display: flex; height: 100vh; background-color: #121212; color: #ffffff; overflow: hidden; }
+
+        /* --- Sidebar Styling --- */
+        .sidebar { width: 280px; background-color: #1a1a2e; border-right: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column; overflow-y: auto; }
+        .logo-section { padding: 25px 20px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .logo-section h2 { font-size: 24px; font-weight: 600; background: linear-gradient(45deg, #ff8a00, #e52e71); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .menu { padding: 20px 0; list-style: none; }
+        .menu-item { margin-bottom: 5px; }
+        .menu-btn { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; background: none; border: none; color: #b3b3b3; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease; text-align: left; }
+        .menu-btn:hover, .menu-btn.active { color: #fff; background: rgba(255, 255, 255, 0.05); border-left: 4px solid #ff8a00; }
+        .arrow { font-size: 12px; transition: transform 0.3s ease; }
+        .menu-btn.active .arrow { transform: rotate(180deg); }
+        
+        .submenu { list-style: none; background-color: #151525; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .submenu li a { display: block; padding: 12px 25px 12px 50px; font-size: 13px; color: #888; text-decoration: none; transition: all 0.2s ease; }
+        .submenu li a:hover { color: #ff8a00; background: rgba(255, 255, 255, 0.02); }
+
+        /* --- Main Content Styling --- */
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; background: radial-gradient(circle at top right, #1a1a2e, #121212); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .header h1 { font-size: 28px; font-weight: 500; color: #fff; }
+        .logout-btn { padding: 10px 20px; background: rgba(255, 76, 76, 0.1); color: #ff4c4c; border: 1px solid rgba(255, 76, 76, 0.3); border-radius: 8px; cursor: pointer; font-weight: 500; transition: 0.3s; }
+        .logout-btn:hover { background: #ff4c4c; color: #fff; }
+
+        /* --- Dashboard Cards --- */
+        .dashboard-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); backdrop-filter: blur(10px); transition: transform 0.3s ease; }
+        .card:hover { transform: translateY(-5px); border-color: rgba(255, 138, 0, 0.3); }
+        .card-title { font-size: 14px; color: #b3b3b3; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px;}
+        .card-value { font-size: 32px; font-weight: 600; color: #fff; margin-bottom: 5px; }
+        .card-subtext { font-size: 13px; color: #4caf50; }
+        .sub-alert { color: #ff9800; }
+        
+        .loading { font-size: 16px; color: #888; animation: blink 1.5s infinite; }
+        @keyframes blink { 0% {opacity: 0.5;} 50% {opacity: 1;} 100% {opacity: 0.5;} }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1a1a2e; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #ff8a00; }
+    </style>
+</head>
+<body>
+
+    <!-- UPDATED SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo-section">
+            <h2>Local Boy</h2>
+        </div>
+
+        <ul class="menu">
+            <!-- Dashboard Home -->
+            <li class="menu-item">
+                <button class="menu-btn active" onclick="window.location.href='dashboard.html'" style="border-left: 4px solid #ff8a00;"><i class="fas fa-home"></i> Dashboard Overview</button>
+            </li>
+
+            <!-- 1. Groceries Management (NEW) -->
+            <li class="menu-item">
+                <button class="menu-btn">Groceries Management <i class="fas fa-chevron-down arrow"></i></button>
+                <ul class="submenu">
+                    <li><a href="admin_groceries.html">Inventory / Add Items</a></li>
+                </ul>
+            </li>
+
+            <!-- 2. Customer App -->
+            <li class="menu-item">
+                <button class="menu-btn">Customer App <i class="fas fa-chevron-down arrow"></i></button>
+                <ul class="submenu">
+                    <li><a href="promocode.html">Promocode</a></li>
+                    <li><a href="banners.html">Banners</a></li>
+                    <li><a href="customers.html">Customer Active/Block</a></li>
+                    <li><a href="delivery_charges.html">Delivery Charges</a></li>
+                    <li><a href="platform_fees.html">Platform Fees</a></li>
+                    <li><a href="wallet.html">Wallet Management</a></li> <!-- NEW -->
+                </ul>
+            </li>
+
+            <!-- 3. Restaurant Partner App -->
+            <li class="menu-item">
+                <button class="menu-btn">Restaurant Partner <i class="fas fa-chevron-down arrow"></i></button>
+                <ul class="submenu">
+                    <li><a href="add_restaurant.html">Adding / Edit Restaurant</a></li>
+                    <li><a href="#">Restaurant Menu</a></li>
+                    <li><a href="#">Restaurant History</a></li>
+                    <li><a href="#">Restaurant Payout</a></li>
+                    <li><a href="reviews.html">Reviews & Ratings</a></li> <!-- NEW -->
+                </ul>
+            </li>
+
+            <!-- 4. Delivery Partner App -->
+            <li class="menu-item">
+                <button class="menu-btn">Delivery Partner <i class="fas fa-chevron-down arrow"></i></button>
+                <ul class="submenu">
+                    <li><a href="#">Add/Edit Partner</a></li>
+                    <li><a href="#">Floating Cash</a></li>
+                    <li><a href="#">Live Location</a></li>
+                    <li><a href="#">Assign Order</a></li>
+                    <li><a href="#">Partner Payouts</a></li>
+                    <li><a href="#">App Settings</a></li>
+                </ul>
+            </li>
+
+            <!-- 5. Orders History -->
+            <li class="menu-item">
+                <button class="menu-btn" style="justify-content: flex-start; gap: 10px;"><i class="fas fa-shopping-bag"></i> Orders History</button>
+            </li>
+
+            <!-- 6. Payouts History -->
+            <li class="menu-item">
+                <button class="menu-btn" style="justify-content: flex-start; gap: 10px;"><i class="fas fa-money-check"></i> Payouts History</button>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="header">
+            <h1>Dashboard Overview</h1>
+            <button class="logout-btn" id="logoutBtn">Logout</button>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="dashboard-cards">
+            
+            <!-- NEW: Groceries Stat -->
+            <div class="card" onclick="window.location.href='admin_groceries.html'" style="cursor: pointer; border-color: rgba(16, 185, 129, 0.3);">
+                <div class="card-title" style="color: #10b981;"><i class="fas fa-shopping-basket"></i> Groceries Inventory</div>
+                <div class="card-value" id="groceries-count"><span class="loading">Loading...</span></div>
+                <div class="card-subtext sub-alert" id="groceries-alert">Checking stock...</div>
+            </div>
+
+            <!-- Restaurants Stat -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-utensils"></i> Restaurants</div>
+                <div class="card-value" id="res-count"><span class="loading">Loading...</span></div>
+                <div class="card-subtext sub-alert" id="res-online">Fetching online status...</div>
+            </div>
+
+            <!-- Delivery Partners Stat -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-motorcycle"></i> Delivery Partners</div>
+                <div class="card-value" id="dp-count"><span class="loading">Loading...</span></div>
+                <div class="card-subtext sub-alert" id="dp-online">Fetching online status...</div>
+            </div>
+
+            <!-- Today's Orders -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-box-open"></i> Today's Orders</div>
+                <div class="card-value" id="orders-count"><span class="loading">Loading...</span></div>
+                <div class="card-subtext" id="orders-subtext">Live orders from today</div>
+            </div>
+
+            <!-- Today's Revenue -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-indian-rupee-sign"></i> Today's Revenue</div>
+                <div class="card-value" id="revenue-count"><span class="loading">Loading...</span></div>
+                <div class="card-subtext">Gross amount collected</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Firebase SDKs using ES Modules -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAvjFcKKiu4OMmQckYXMTejdBJh9tC6TjM",
+            authDomain: "sri-vishnu-priya-finance-c591f.firebaseapp.com",
+            databaseURL: "https://sri-vishnu-priya-finance-c591f-default-rtdb.firebaseio.com",
+            projectId: "sri-vishnu-priya-finance-c591f",
+            storageBucket: "sri-vishnu-priya-finance-c591f.firebasestorage.app",
+            messagingSenderId: "184676228358",
+            appId: "1:184676228358:web:c2b32b68debeeadadfd287",
+            measurementId: "G-E3TT96ZH1T"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) window.location.href = "index.html";
+        });
+
+        // Sidebar Accordion Logic
+        const menuBtns = document.querySelectorAll('.menu-btn');
+        menuBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const submenu = this.nextElementSibling;
+                if(submenu && submenu.classList.contains('submenu')) {
+                    this.classList.toggle('active');
+                    if (submenu.style.maxHeight) {
+                        submenu.style.maxHeight = null;
+                    } else {
+                        submenu.style.maxHeight = submenu.scrollHeight + "px";
+                    }
+                }
+            });
+        });
+
+        // 1. Fetch Groceries (NEW)
+        const groceriesRef = ref(db, 'groceries');
+        onValue(groceriesRef, (snapshot) => {
+            let totalGroceries = 0;
+            let outOfStock = 0;
+            
+            if(snapshot.exists()){
+                snapshot.forEach((childSnapshot) => {
+                    totalGroceries++;
+                    if(childSnapshot.val().in_stock === false) outOfStock++;
+                });
+            }
+            
+            document.getElementById('groceries-count').innerText = totalGroceries;
+            const alertText = document.getElementById('groceries-alert');
+            
+            if(outOfStock > 0) {
+                alertText.innerText = `⚠️ ${outOfStock} items Out of Stock`;
+                alertText.style.color = '#ff4c4c';
+            } else {
+                alertText.innerText = `✅ All items in stock`;
+                alertText.style.color = '#4caf50';
+            }
+        });
+
+        // 2. Fetch Restaurants
+        const restaurantsRef = ref(db, 'restaurant_profiles');
+        onValue(restaurantsRef, (snapshot) => {
+            let totalRes = 0;
+            let onlineRes = 0;
+            if(snapshot.exists()){
+                snapshot.forEach((childSnapshot) => {
+                    totalRes++;
+                    const data = childSnapshot.val();
+                    if(data.status === 'Open') onlineRes++;
+                });
+            }
+            document.getElementById('res-count').innerText = totalRes;
+            document.getElementById('res-online').innerText = `🟢 ${onlineRes} Open Now`;
+        });
+
+        // 3. Fetch Delivery Partners
+        const partnersRef = ref(db, 'delivery_partners');
+        onValue(partnersRef, (snapshot) => {
+            let totalDp = 0;
+            let onlineDp = 0;
+            if(snapshot.exists()){
+                snapshot.forEach((childSnapshot) => {
+                    totalDp++;
+                    if(childSnapshot.val().status === 'online') onlineDp++;
+                });
+            }
+            document.getElementById('dp-count').innerText = totalDp;
+            document.getElementById('dp-online').innerText = `🟢 ${onlineDp} Active / Online`;
+        });
+
+        // 4. Fetch Orders & Revenue
+        const ordersRef = ref(db, 'orders');
+        onValue(ordersRef, (snapshot) => {
+            let todaysOrders = 0;
+            let totalRevenue = 0;
+            const today = new Date();
+            const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+
+            if(snapshot.exists()){
+                snapshot.forEach((childSnapshot) => {
+                    const data = childSnapshot.val();
+                    if(data.timestamp && data.timestamp >= todayStart) {
+                        todaysOrders++;
+                        if(data.totalAmount) totalRevenue += parseFloat(data.totalAmount);
+                    }
+                });
+            }
+            
+            document.getElementById('orders-count').innerText = todaysOrders;
+            let inrFormat = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
+            document.getElementById('revenue-count').innerText = inrFormat.format(totalRevenue);
+        });
+
+        // Logout Logic
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            signOut(auth).then(() => { window.location.href = "index.html"; });
+        });
+    </script>
+</body>
+</html>
