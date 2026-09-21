@@ -24,7 +24,7 @@
         .menu-btn.active .arrow { transform: rotate(180deg); }
         
         .submenu { list-style: none; background-color: #151525; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
-        .submenu li a { display: block; padding: 12px 25px 12px 50px; font-size: 13px; color: #888; text-decoration: none; transition: all 0.2s ease; }
+        .submenu li a { display: block; padding: 12px 25px 12px 50px; font-size: 13px; color: #888; text-decoration: none; transition: all 0.2s ease; cursor: pointer;}
         .submenu li a:hover { color: #ff8a00; background: rgba(255, 255, 255, 0.02); }
 
         /* --- Main Content Styling --- */
@@ -61,65 +61,58 @@
         </div>
 
         <ul class="menu">
-            <!-- Dashboard Home -->
             <li class="menu-item">
                 <button class="menu-btn active" onclick="window.location.href='dashboard.html'" style="border-left: 4px solid #ff8a00;"><i class="fas fa-home"></i> Dashboard Overview</button>
             </li>
 
-            <!-- 1. Groceries Management (NEW) -->
             <li class="menu-item">
                 <button class="menu-btn">Groceries Management <i class="fas fa-chevron-down arrow"></i></button>
                 <ul class="submenu">
-                    <li><a href="admin_groceries.html">Inventory / Add Items</a></li>
+                    <li><a onclick="window.location.href='admin_groceries.html'">Inventory / Add Items</a></li>
                 </ul>
             </li>
 
-            <!-- 2. Customer App -->
             <li class="menu-item">
                 <button class="menu-btn">Customer App <i class="fas fa-chevron-down arrow"></i></button>
                 <ul class="submenu">
-                    <li><a href="promocode.html">Promocode</a></li>
-                    <li><a href="banners.html">Banners</a></li>
-                    <li><a href="customers.html">Customer Active/Block</a></li>
-                    <li><a href="delivery_charges.html">Delivery Charges</a></li>
-                    <li><a href="platform_fees.html">Platform Fees</a></li>
-                    <li><a href="wallet.html">Wallet Management</a></li> <!-- NEW -->
+                    <li><a onclick="window.location.href='promocode.html'">Promocode</a></li>
+                    <li><a onclick="window.location.href='banners.html'">Banners</a></li>
+                    <li><a onclick="window.location.href='customers.html'">Customer Active/Block</a></li>
+                    <li><a onclick="window.location.href='delivery_charges.html'">Delivery Charges</a></li>
+                    <li><a onclick="window.location.href='platform_fees.html'">Platform Fees</a></li>
+                    <li><a onclick="window.location.href='wallet.html'">Wallet Management</a></li>
                 </ul>
             </li>
 
-            <!-- 3. Restaurant Partner App -->
             <li class="menu-item">
                 <button class="menu-btn">Restaurant Partner <i class="fas fa-chevron-down arrow"></i></button>
                 <ul class="submenu">
-                    <li><a href="add_restaurant.html">Adding / Edit Restaurant</a></li>
-                    <li><a href="#">Restaurant Menu</a></li>
-                    <li><a href="#">Restaurant History</a></li>
-                    <li><a href="#">Restaurant Payout</a></li>
-                    <li><a href="reviews.html">Reviews & Ratings</a></li> <!-- NEW -->
+                    <li><a onclick="window.location.href='add_restaurant.html'">Adding / Edit Restaurant</a></li>
+                    <li><a onclick="window.location.href='restaurant_menu.html'">Restaurant Menu</a></li>
+                    <li><a onclick="window.location.href='restaurant_history.html'">Restaurant History</a></li>
+                    <li><a onclick="window.location.href='#'">Restaurant Payout</a></li>
+                    <li><a onclick="window.location.href='reviews.html'">Reviews & Ratings</a></li>
                 </ul>
             </li>
 
-            <!-- 4. Delivery Partner App -->
             <li class="menu-item">
                 <button class="menu-btn">Delivery Partner <i class="fas fa-chevron-down arrow"></i></button>
                 <ul class="submenu">
-                    <li><a href="#">Add/Edit Partner</a></li>
-                    <li><a href="#">Floating Cash</a></li>
-                    <li><a href="#">Live Location</a></li>
-                    <li><a href="#">Assign Order</a></li>
-                    <li><a href="#">Partner Payouts</a></li>
-                    <li><a href="#">App Settings</a></li>
+                    <li><a onclick="window.location.href='#'">Add/Edit Partner</a></li>
+                    <li><a onclick="window.location.href='#'">Floating Cash</a></li>
+                    <li><a onclick="window.location.href='#'">Live Location</a></li>
+                    <li><a onclick="window.location.href='#'">Assign Order</a></li>
+                    <li><a onclick="window.location.href='#'">Partner Payouts</a></li>
+                    <li><a onclick="window.location.href='#'">App Settings</a></li>
                 </ul>
             </li>
 
-            <!-- 5. Orders History -->
             <li class="menu-item">
-                <button class="menu-btn" style="justify-content: flex-start; gap: 10px;"><i class="fas fa-shopping-bag"></i> Orders History</button>
+                <button class="menu-btn" style="justify-content: flex-start; gap: 10px;" onclick="window.location.href='orders_admin.html'"><i class="fas fa-shopping-bag"></i> Orders History</button>
             </li>
 
-            <!-- 6. Payouts History -->
             <li class="menu-item">
-                <button class="menu-btn" style="justify-content: flex-start; gap: 10px;"><i class="fas fa-money-check"></i> Payouts History</button>
+                <button class="menu-btn" style="justify-content: flex-start; gap: 10px;" onclick="window.location.href='payouts_history.html'"><i class="fas fa-money-check"></i> Payouts History</button>
             </li>
         </ul>
     </aside>
@@ -133,36 +126,30 @@
 
         <!-- Stats Cards -->
         <div class="dashboard-cards">
-            
-            <!-- NEW: Groceries Stat -->
             <div class="card" onclick="window.location.href='admin_groceries.html'" style="cursor: pointer; border-color: rgba(16, 185, 129, 0.3);">
                 <div class="card-title" style="color: #10b981;"><i class="fas fa-shopping-basket"></i> Groceries Inventory</div>
                 <div class="card-value" id="groceries-count"><span class="loading">Loading...</span></div>
                 <div class="card-subtext sub-alert" id="groceries-alert">Checking stock...</div>
             </div>
 
-            <!-- Restaurants Stat -->
-            <div class="card">
+            <div class="card" onclick="window.location.href='add_restaurant.html'" style="cursor: pointer;">
                 <div class="card-title"><i class="fas fa-utensils"></i> Restaurants</div>
                 <div class="card-value" id="res-count"><span class="loading">Loading...</span></div>
                 <div class="card-subtext sub-alert" id="res-online">Fetching online status...</div>
             </div>
 
-            <!-- Delivery Partners Stat -->
             <div class="card">
                 <div class="card-title"><i class="fas fa-motorcycle"></i> Delivery Partners</div>
                 <div class="card-value" id="dp-count"><span class="loading">Loading...</span></div>
                 <div class="card-subtext sub-alert" id="dp-online">Fetching online status...</div>
             </div>
 
-            <!-- Today's Orders -->
-            <div class="card">
+            <div class="card" onclick="window.location.href='orders_admin.html'" style="cursor: pointer;">
                 <div class="card-title"><i class="fas fa-box-open"></i> Today's Orders</div>
                 <div class="card-value" id="orders-count"><span class="loading">Loading...</span></div>
                 <div class="card-subtext" id="orders-subtext">Live orders from today</div>
             </div>
 
-            <!-- Today's Revenue -->
             <div class="card">
                 <div class="card-title"><i class="fas fa-indian-rupee-sign"></i> Today's Revenue</div>
                 <div class="card-value" id="revenue-count"><span class="loading">Loading...</span></div>
@@ -177,23 +164,30 @@
         import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
 
+        // NEW API KEY INTEGRATED
         const firebaseConfig = {
-            apiKey: "AIzaSyAvjFcKKiu4OMmQckYXMTejdBJh9tC6TjM",
+            apiKey: "AIzaSyCnFpeVwtaQ1u0_zrY3o50qQGE1SFZj0E0",
             authDomain: "sri-vishnu-priya-finance-c591f.firebaseapp.com",
             databaseURL: "https://sri-vishnu-priya-finance-c591f-default-rtdb.firebaseio.com",
             projectId: "sri-vishnu-priya-finance-c591f",
-            storageBucket: "sri-vishnu-priya-finance-c591f.firebasestorage.app",
-            messagingSenderId: "184676228358",
-            appId: "1:184676228358:web:c2b32b68debeeadadfd287",
-            measurementId: "G-E3TT96ZH1T"
+            storageBucket: "sri-vishnu-priya-finance-c591f.firebasestorage.app"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
 
+        // Security check
         onAuthStateChanged(auth, (user) => {
             if (!user) window.location.href = "index.html";
+        });
+
+        // Logout Logic
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            if(confirm("Are you sure you want to logout?")) {
+                signOut(auth).then(() => { window.location.href = "index.html"; })
+                .catch((error) => { alert("Error logging out: " + error.message); });
+            }
         });
 
         // Sidebar Accordion Logic
@@ -212,22 +206,19 @@
             });
         });
 
-        // 1. Fetch Groceries (NEW)
+        // 1. Fetch Groceries
         const groceriesRef = ref(db, 'groceries');
         onValue(groceriesRef, (snapshot) => {
             let totalGroceries = 0;
             let outOfStock = 0;
-            
             if(snapshot.exists()){
                 snapshot.forEach((childSnapshot) => {
                     totalGroceries++;
                     if(childSnapshot.val().in_stock === false) outOfStock++;
                 });
             }
-            
             document.getElementById('groceries-count').innerText = totalGroceries;
             const alertText = document.getElementById('groceries-alert');
-            
             if(outOfStock > 0) {
                 alertText.innerText = `⚠️ ${outOfStock} items Out of Stock`;
                 alertText.style.color = '#ff4c4c';
@@ -245,8 +236,7 @@
             if(snapshot.exists()){
                 snapshot.forEach((childSnapshot) => {
                     totalRes++;
-                    const data = childSnapshot.val();
-                    if(data.status === 'Open') onlineRes++;
+                    if(childSnapshot.val().status === 'Open') onlineRes++;
                 });
             }
             document.getElementById('res-count').innerText = totalRes;
@@ -285,15 +275,9 @@
                     }
                 });
             }
-            
             document.getElementById('orders-count').innerText = todaysOrders;
             let inrFormat = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
             document.getElementById('revenue-count').innerText = inrFormat.format(totalRevenue);
-        });
-
-        // Logout Logic
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            signOut(auth).then(() => { window.location.href = "index.html"; });
         });
     </script>
 </body>
