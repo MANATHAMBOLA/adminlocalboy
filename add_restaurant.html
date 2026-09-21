@@ -80,7 +80,7 @@
 
         /* Map Integration */
         .map-wrapper { position: relative; width: 100%; height: 250px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.2); }
-        #map { width: 100%; height: 100%; background: #222; }
+        #map { width: 100%; height: 100%; background: #222;}
         .gps-btn { position: absolute; bottom: 15px; right: 15px; width: 45px; height: 45px; background: #fff; color: #3b82f6; border: none; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; font-size: 20px; display: flex; justify-content: center; align-items: center; z-index: 10; transition: 0.2s;}
         .gps-btn:hover { background: #3b82f6; color: #fff; }
 
@@ -88,9 +88,6 @@
         ::-webkit-scrollbar-track { background: #1a1a2e; }
         ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
     </style>
-    
-    <!-- Load Google Maps Script synchronously to avoid rendering issues -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAITao9tzWyZuXcMiGCfoTF3GboS32_48U"></script>
 </head>
 <body>
 
@@ -98,9 +95,11 @@
         <div class="logo-section"><h2>Local Boy Admin</h2></div>
         <ul class="menu">
             <li class="menu-item"><button class="menu-btn" onclick="window.location.href='dashboard.html'"><i class="fas fa-home"></i> Dashboard</button></li>
+            
             <li class="menu-item"><button class="menu-btn">Groceries <i class="fas fa-chevron-down arrow"></i></button>
                 <ul class="submenu"><li><a href="admin_groceries.html">Inventory / Add Items</a></li></ul>
             </li>
+
             <li class="menu-item"><button class="menu-btn">Customer App <i class="fas fa-chevron-down arrow"></i></button>
                 <ul class="submenu">
                     <li><a href="promocode.html">Promocode</a></li>
@@ -111,6 +110,7 @@
                     <li><a href="wallet.html">Wallet Management</a></li>
                 </ul>
             </li>
+
             <li class="menu-item"><button class="menu-btn active">Restaurant Partner <i class="fas fa-chevron-down arrow"></i></button>
                 <ul class="submenu" style="max-height: 500px;">
                     <li><a href="add_restaurant.html" class="active-link">Adding / Edit Restaurant</a></li>
@@ -120,6 +120,7 @@
                     <li><a href="reviews.html">Reviews & Ratings</a></li>
                 </ul>
             </li>
+
             <li class="menu-item">
                 <button class="menu-btn">Delivery Partner <i class="fas fa-chevron-down arrow"></i></button>
                 <ul class="submenu">
@@ -131,6 +132,7 @@
                     <li><a href="#">App Settings</a></li>
                 </ul>
             </li>
+
             <li class="menu-item"><button class="menu-btn" style="justify-content: flex-start; gap: 10px;" onclick="window.location.href='orders_admin.html'"><i class="fas fa-shopping-bag"></i> Orders History</button></li>
             <li class="menu-item"><button class="menu-btn" style="justify-content: flex-start; gap: 10px;"><i class="fas fa-money-check"></i> Payouts History</button></li>
         </ul>
@@ -204,6 +206,9 @@
         </div>
     </div>
 
+    <!-- Google Maps Script -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAITao9tzWyZuXcMiGCfoTF3GboS32_48U&callback=initMap" async defer></script>
+    
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
         import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
@@ -235,6 +240,11 @@
 
         // --- GOOGLE MAPS RENDERING FUNCTION ---
         let map, marker;
+        window.initMap = function() {
+            // Default center point
+            renderMap(16.2366, 80.6405);
+        }
+
         function renderMap(lat, lng) {
             const loc = { lat: parseFloat(lat), lng: parseFloat(lng) };
             const mapElement = document.getElementById("map");
@@ -363,7 +373,7 @@
             if(!editId && !restSelectedFile) { alert("Please upload an image for the new restaurant."); return; }
 
             const btn = document.getElementById('saveRestBtn');
-            btn.innerText = "Saving Profile..."; btn.disabled = true;
+            btn.innerText = "Preparing to upload..."; btn.disabled = true;
 
             const profileData = {
                 name: document.getElementById('rName').value,
@@ -396,7 +406,7 @@
                         btn.innerText = `Uploading Image... ${Math.round(progress)}%`;
                     }, 
                     (error) => {
-                        alert("Image Upload Failed! " + error.message);
+                        alert("Image Upload Failed! " + error.message + " Check Storage Rules.");
                         btn.innerText = "Save Restaurant Profile"; btn.disabled = false;
                     }, 
                     () => {
@@ -436,8 +446,9 @@
                         <img src="${data.image}" class="rest-img">
                         <div class="rest-info">
                             <h3>${data.name}</h3>
-                            <p><i class="fas fa-user-tie"></i> ${data.ownerName} &nbsp;|&nbsp; <i class="fas fa-phone"></i> ${data.phone}</p>
-                            <p><i class="fas fa-percent"></i> Comm: ${data.commission}% &nbsp;|&nbsp; ID: ${data.loginId}</p>
+                            <!-- Fixed undefined variables here by using Fallbacks (|| "") -->
+                            <p><i class="fas fa-user-tie"></i> ${data.ownerName || "Not Set"} &nbsp;|&nbsp; <i class="fas fa-phone"></i> ${data.phone || "Not Set"}</p>
+                            <p><i class="fas fa-percent"></i> Comm: ${data.commission || 0}% &nbsp;|&nbsp; ID: ${data.loginId || "Not Set"}</p>
                             
                             <div class="rest-actions">
                                 <button class="action-btn edit edit-btn" data-key="${key}"><i class="fas fa-pen"></i> Edit Profile</button>
@@ -462,6 +473,7 @@
 
         // Event Delegation for Edit, Delete and Toggle
         restGrid.addEventListener('click', (e) => {
+            // Edit Button Setup - Fixes Undefined filling
             const editBtn = e.target.closest('.edit-btn');
             if(editBtn) {
                 const key = editBtn.getAttribute('data-key');
@@ -471,9 +483,9 @@
                 document.getElementById('editRestId').value = key;
                 document.getElementById('existingImagePath').value = data.storage_path || "";
                 
-                document.getElementById('rName').value = data.name;
-                document.getElementById('rOwner').value = data.ownerName;
-                document.getElementById('rPhone').value = data.phone;
+                document.getElementById('rName').value = data.name || "";
+                document.getElementById('rOwner').value = data.ownerName || "";
+                document.getElementById('rPhone').value = data.phone || "";
                 document.getElementById('rComm').value = data.commission || 0;
                 
                 document.getElementById('rLoginId').value = data.loginId || "";
@@ -498,7 +510,7 @@
                 
                 // Explicitly render Map on Edit with existing Lat/Lng
                 setTimeout(() => { 
-                    renderMap(data.latitude, data.longitude); 
+                    renderMap(data.latitude || 16.2366, data.longitude || 80.6405); 
                 }, 300);
             }
 
