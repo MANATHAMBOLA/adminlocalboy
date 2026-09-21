@@ -11,7 +11,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body { display: flex; height: 100vh; background-color: #121212; color: #ffffff; overflow: hidden; }
 
-        /* --- FULL SIDEBAR --- */
         .sidebar { width: 280px; background-color: #1a1a2e; border-right: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column; overflow-y: auto; z-index: 10; }
         .logo-section { padding: 25px 20px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
         .logo-section h2 { font-size: 24px; font-weight: 600; background: linear-gradient(45deg, #10b981, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
@@ -25,19 +24,16 @@
         .submenu li a { display: block; padding: 12px 25px 12px 50px; font-size: 13px; color: #888; text-decoration: none; transition: all 0.2s; }
         .submenu li a:hover, .submenu li a.active-link { color: #3b82f6; background: rgba(255, 255, 255, 0.02); }
 
-        /* Main Content */
         .main-content { flex: 1; padding: 30px; overflow-y: auto; background: radial-gradient(circle at top left, #1a1a2e, #121212); position: relative; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .header h1 { font-size: 26px; font-weight: 500; }
         .add-btn { padding: 12px 24px; background: linear-gradient(45deg, #3b82f6, #8b5cf6); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer; box-shadow: 0 8px 20px rgba(59, 130, 246, 0.2); transition: 0.3s; display: none; }
         .add-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(59, 130, 246, 0.4); }
 
-        /* Restaurant Selector */
         .selector-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 12px; margin-bottom: 30px; display: flex; align-items: center; gap: 20px; backdrop-filter: blur(10px);}
         .selector-box label { font-size: 15px; font-weight: 600; color: #b3b3b3; }
         .selector-box select { flex: 1; max-width: 400px; padding: 12px; background: rgba(0, 0, 0, 0.4); border: 1px solid #3b82f6; border-radius: 8px; color: #fff; font-size: 15px; outline: none; cursor: pointer;}
         
-        /* Menu Grid */
         .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
         .menu-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 15px; display: flex; gap: 15px; transition: 0.3s;}
         .menu-card:hover { border-color: rgba(59, 130, 246, 0.3); transform: translateY(-3px);}
@@ -55,7 +51,6 @@
         .action-icon.edit { color: #3b82f6; } .action-icon.edit:hover { background: #3b82f6; color: white;}
         .action-icon.delete { color: #ff4c4c; } .action-icon.delete:hover { background: #ff4c4c; color: white;}
 
-        /* Modal */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.3s; z-index: 1000; }
         .modal-overlay.active { opacity: 1; visibility: visible; }
         .modal-card { background: #1a1a2e; border: 1px solid rgba(255, 255, 255, 0.1); padding: 30px; border-radius: 16px; width: 100%; max-width: 500px; transform: translateY(-20px); transition: 0.3s; max-height: 90vh; overflow-y: auto; position: relative;}
@@ -64,7 +59,6 @@
         .close-modal { position: absolute; top: 25px; right: 25px; font-size: 20px; color: #888; cursor: pointer; }
         .close-modal:hover { color: #ff4c4c; }
 
-        /* Form */
         .form-row { display: flex; gap: 15px; margin-bottom: 15px; }
         .form-group { flex: 1; }
         .form-group label { display: block; font-size: 12px; color: #b3b3b3; margin-bottom: 5px; }
@@ -88,44 +82,10 @@
         <div class="logo-section"><h2>Local Boy Admin</h2></div>
         <ul class="menu">
             <li class="menu-item"><button class="menu-btn" onclick="window.location.href='dashboard.html'"><i class="fas fa-home"></i> Dashboard</button></li>
-            
-            <li class="menu-item"><button class="menu-btn">Groceries <i class="fas fa-chevron-down arrow"></i></button>
-                <ul class="submenu"><li><a href="admin_groceries.html">Inventory / Add Items</a></li></ul>
-            </li>
-
-            <li class="menu-item"><button class="menu-btn">Customer App <i class="fas fa-chevron-down arrow"></i></button>
-                <ul class="submenu">
-                    <li><a href="promocode.html">Promocode</a></li>
-                    <li><a href="banners.html">Banners</a></li>
-                    <li><a href="customers.html">Customer Active/Block</a></li>
-                    <li><a href="delivery_charges.html">Delivery Charges</a></li>
-                    <li><a href="platform_fees.html">Platform Fees</a></li>
-                    <li><a href="wallet.html">Wallet Management</a></li>
-                </ul>
-            </li>
-
-            <li class="menu-item"><button class="menu-btn active">Restaurant Partner <i class="fas fa-chevron-down arrow"></i></button>
-                <ul class="submenu" style="max-height: 500px;">
-                    <li><a href="add_restaurant.html">Adding / Edit Restaurant</a></li>
-                    <li><a href="restaurant_menu.html" class="active-link">Restaurant Menu</a></li>
-                    <li><a href="#">Restaurant History</a></li>
-                    <li><a href="#">Restaurant Payout</a></li>
-                    <li><a href="reviews.html">Reviews & Ratings</a></li>
-                </ul>
-            </li>
-
-            <li class="menu-item">
-                <button class="menu-btn">Delivery Partner <i class="fas fa-chevron-down arrow"></i></button>
-                <ul class="submenu">
-                    <li><a href="#">Add/Edit Partner</a></li>
-                    <li><a href="#">Floating Cash</a></li>
-                    <li><a href="#">Live Location</a></li>
-                    <li><a href="#">Assign Order</a></li>
-                    <li><a href="#">Partner Payouts</a></li>
-                    <li><a href="#">App Settings</a></li>
-                </ul>
-            </li>
-
+            <li class="menu-item"><button class="menu-btn">Groceries <i class="fas fa-chevron-down arrow"></i></button><ul class="submenu"><li><a href="admin_groceries.html">Inventory / Add Items</a></li></ul></li>
+            <li class="menu-item"><button class="menu-btn">Customer App <i class="fas fa-chevron-down arrow"></i></button><ul class="submenu"><li><a href="promocode.html">Promocode</a></li><li><a href="banners.html">Banners</a></li><li><a href="customers.html">Customer Active/Block</a></li><li><a href="delivery_charges.html">Delivery Charges</a></li><li><a href="platform_fees.html">Platform Fees</a></li><li><a href="wallet.html">Wallet Management</a></li></ul></li>
+            <li class="menu-item"><button class="menu-btn active">Restaurant Partner <i class="fas fa-chevron-down arrow"></i></button><ul class="submenu" style="max-height: 500px;"><li><a href="add_restaurant.html">Adding / Edit Restaurant</a></li><li><a href="restaurant_menu.html" class="active-link">Restaurant Menu</a></li><li><a href="#">Restaurant History</a></li><li><a href="#">Restaurant Payout</a></li><li><a href="reviews.html">Reviews & Ratings</a></li></ul></li>
+            <li class="menu-item"><button class="menu-btn">Delivery Partner <i class="fas fa-chevron-down arrow"></i></button><ul class="submenu"><li><a href="#">Add/Edit Partner</a></li><li><a href="#">Floating Cash</a></li><li><a href="#">Live Location</a></li><li><a href="#">Assign Order</a></li><li><a href="#">Partner Payouts</a></li><li><a href="#">App Settings</a></li></ul></li>
             <li class="menu-item"><button class="menu-btn" style="justify-content: flex-start; gap: 10px;" onclick="window.location.href='orders_admin.html'"><i class="fas fa-shopping-bag"></i> Orders History</button></li>
             <li class="menu-item"><button class="menu-btn" style="justify-content: flex-start; gap: 10px;"><i class="fas fa-money-check"></i> Payouts History</button></li>
         </ul>
@@ -149,7 +109,6 @@
         </div>
     </main>
 
-    <!-- MENU MODAL -->
     <div class="modal-overlay" id="menuModal">
         <div class="modal-card">
             <i class="fas fa-xmark close-modal" onclick="closeModal()"></i>
@@ -216,7 +175,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
         import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
-        import { getStorage, ref as sRef, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-storage.js";
+        import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCnFpeVwtaQ1u0_zrY3o50qQGE1SFZj0E0",
@@ -241,7 +200,6 @@
             });
         });
 
-        // Fetch Restaurants for Dropdown
         const restSelect = document.getElementById('restaurantSelect');
         const addBtn = document.getElementById('openMenuModalBtn');
         let selectedRestId = null;
@@ -272,7 +230,7 @@
             }
         });
 
-        // Load Menu Items
+        // Load Menu Items (With Fallbacks for old data)
         function loadMenuForRestaurant(restId) {
             const grid = document.getElementById('menuItemsGrid');
             grid.innerHTML = '<p style="color: #888; grid-column: 1/-1; text-align: center;"><i class="fas fa-spinner fa-spin"></i> Loading Menu...</p>';
@@ -288,16 +246,24 @@
                         currentMenuData[key] = data;
                         
                         const vegClass = data.type === 'veg' ? 'veg' : 'nonveg';
-                        const imgSrc = data.image || 'https://cdn-icons-png.flaticon.com/512/3075/3075977.png';
-                        const discTag = data.discount > 0 ? `<span class="discount-tag">${data.discount}% OFF</span>` : '';
+                        
+                        // Image Fallback
+                        const fallbackImg = 'https://cdn-icons-png.flaticon.com/512/3075/3075977.png';
+                        const imgSrc = (data.image && data.image.includes('http')) ? data.image : fallbackImg;
+                        
+                        // Price Fallback (To hide 'undefined')
+                        const origPriceHtml = (data.originalPrice && data.originalPrice !== "undefined" && !isNaN(data.originalPrice)) 
+                            ? `<strike style="font-size:11px; color:#888;">₹${data.originalPrice}</strike>` : '';
+                        
+                        const discTag = (data.discount && data.discount > 0) ? `<span class="discount-tag">${data.discount}% OFF</span>` : '';
 
                         grid.innerHTML += `
                             <div class="menu-card">
-                                <img src="${imgSrc}" class="menu-img">
+                                <img src="${imgSrc}" class="menu-img" onerror="this.src='${fallbackImg}'">
                                 <div class="menu-info">
                                     <h4><span class="veg-dot ${vegClass}"></span> ${data.name}</h4>
                                     <p>${data.weight ? data.weight : 'Standard Portion'}</p>
-                                    <div class="price-tag">₹${data.price} <strike style="font-size:11px; color:#888;">₹${data.originalPrice}</strike> ${discTag}</div>
+                                    <div class="price-tag">₹${data.price} ${origPriceHtml} ${discTag}</div>
                                 </div>
                                 <div class="menu-actions">
                                     <i class="fas fa-pen action-icon edit menu-edit-btn" data-key="${key}" title="Edit Item"></i>
@@ -379,8 +345,8 @@
             try {
                 if(menuSelectedFile) {
                     const fileName = `menus/${Date.now()}_${menuSelectedFile.name}`;
-                    const uploadTask = await uploadBytesResumable(sRef(storage, fileName), menuSelectedFile);
-                    itemData.image = await getDownloadURL(uploadTask.ref);
+                    const snapshot = await uploadBytes(sRef(storage, fileName), menuSelectedFile);
+                    itemData.image = await getDownloadURL(snapshot.ref);
                     itemData.storage_path = fileName;
                 } else {
                     if(editId) {
@@ -408,7 +374,6 @@
 
         // Edit / Delete Actions on Grid
         document.getElementById('menuItemsGrid').addEventListener('click', (e) => {
-            // Edit
             if(e.target.classList.contains('menu-edit-btn')) {
                 const key = e.target.getAttribute('data-key');
                 const data = currentMenuData[key];
@@ -420,12 +385,12 @@
                 document.getElementById('menuItemName').value = data.name;
                 document.getElementById('menuItemType').value = data.type;
                 document.getElementById('menuItemWeight').value = data.weight || "";
-                document.getElementById('menuOriginalPrice').value = data.originalPrice;
-                document.getElementById('menuSellingPrice').value = data.price;
-                document.getElementById('menuDiscount').value = data.discount;
+                document.getElementById('menuOriginalPrice').value = data.originalPrice || 0;
+                document.getElementById('menuSellingPrice').value = data.price || 0;
+                document.getElementById('menuDiscount').value = data.discount || 0;
                 document.getElementById('menuDesc').value = data.desc || "";
 
-                if(data.image) {
+                if(data.image && data.image.includes('http')) {
                     document.getElementById('previewMenuImage').src = data.image;
                     document.getElementById('previewMenuImage').style.display = 'block';
                     document.getElementById('menuUploadPlaceholder').style.display = 'none';
@@ -438,13 +403,12 @@
                 menuModal.classList.add('active');
             }
 
-            // Delete
             if(e.target.classList.contains('menu-del-btn')) {
                 const key = e.target.getAttribute('data-key');
                 const path = e.target.getAttribute('data-path');
                 if(confirm("Delete this menu item?")) {
                     remove(ref(db, `restaurant_menus/${selectedRestId}/${key}`)).then(() => {
-                        if(path) deleteObject(sRef(storage, path)).catch(err=>console.log(err));
+                        if(path) deleteObject(sRef(storage, path));
                     });
                 }
             }
