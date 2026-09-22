@@ -11,25 +11,28 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body { display: flex; height: 100vh; background-color: #121212; color: #ffffff; overflow: hidden; }
 
+        /* --- FULL SIDEBAR --- */
         .sidebar { width: 280px; background-color: #1a1a2e; border-right: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column; overflow-y: auto; z-index: 10; }
         .logo-section { padding: 25px 20px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
         .logo-section h2 { font-size: 24px; font-weight: 600; background: linear-gradient(45deg, #10b981, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .menu { padding: 20px 0; list-style: none; }
         .menu-item { margin-bottom: 5px; }
         .menu-btn { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; background: none; border: none; color: #b3b3b3; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s; text-align: left; }
-        .menu-btn:hover, .menu-btn.active { color: #fff; background: rgba(255, 255, 255, 0.05); border-left: 4px solid #3b82f6; }
+        .menu-btn:hover, .menu-btn.active { color: #fff; background: rgba(255, 255, 255, 0.05); border-left: 4px solid #ff8a00; }
         .arrow { font-size: 12px; transition: transform 0.3s; }
         .menu-btn.active .arrow { transform: rotate(180deg); }
         .submenu { list-style: none; background-color: #151525; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
-        .submenu li a { display: block; padding: 12px 25px 12px 50px; font-size: 13px; color: #888; text-decoration: none; transition: all 0.2s; }
-        .submenu li a:hover, .submenu li a.active-link { color: #3b82f6; background: rgba(255, 255, 255, 0.02); }
+        .submenu li a { display: block; padding: 12px 25px 12px 50px; font-size: 13px; color: #888; text-decoration: none; transition: all 0.2s; cursor: pointer; }
+        .submenu li a:hover, .submenu li a.active-link { color: #ff8a00; background: rgba(255, 255, 255, 0.02); }
 
+        /* Main Content */
         .main-content { flex: 1; padding: 30px; overflow-y: auto; background: radial-gradient(circle at top left, #1a1a2e, #121212); position: relative; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .header h1 { font-size: 26px; font-weight: 500; }
         .add-btn { padding: 12px 24px; background: linear-gradient(45deg, #3b82f6, #8b5cf6); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer; box-shadow: 0 8px 20px rgba(59, 130, 246, 0.2); transition: 0.3s; }
         .add-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(59, 130, 246, 0.4); }
 
+        /* Restaurants Grid */
         .rest-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
         .rest-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; overflow: hidden; backdrop-filter: blur(10px); transition: 0.3s; display: flex; flex-direction: column;}
         .rest-card:hover { transform: translateY(-5px); border-color: rgba(59, 130, 246, 0.3); }
@@ -41,8 +44,8 @@
         
         .action-btn { background: rgba(255, 255, 255, 0.05); color: #ccc; border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.3s; display: flex; align-items: center; gap: 5px;}
         .action-btn.edit:hover { background: #f59e0b; color: #fff; border-color: #f59e0b; }
-        .action-btn.delete:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
 
+        /* Toggle Switch */
         .switch { position: relative; display: inline-block; width: 40px; height: 22px; margin-left: auto;}
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ff4c4c; transition: .4s; border-radius: 22px; }
@@ -50,6 +53,7 @@
         input:checked + .slider { background-color: #10b981; }
         input:checked + .slider:before { transform: translateX(18px); }
 
+        /* Large Modal for Adding/Editing */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.3s; z-index: 1000; }
         .modal-overlay.active { opacity: 1; visibility: visible; }
         .modal-card { background: #1a1a2e; border: 1px solid rgba(255, 255, 255, 0.1); padding: 30px; border-radius: 16px; width: 100%; max-width: 800px; transform: translateY(-20px); transition: 0.3s; max-height: 90vh; overflow-y: auto; position: relative;}
@@ -58,8 +62,10 @@
         .close-modal { position: absolute; top: 25px; right: 25px; font-size: 20px; color: #888; cursor: pointer; }
         .close-modal:hover { color: #ff4c4c; }
 
+        /* Grid Form Layout */
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .full-width { grid-column: 1 / -1; }
+        
         .section-label { grid-column: 1 / -1; font-size: 14px; font-weight: 600; color: #8b5cf6; margin-top: 10px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 5px;}
 
         .form-group label { display: block; font-size: 12px; color: #b3b3b3; margin-bottom: 5px; }
@@ -72,9 +78,9 @@
 
         .btn-save { padding: 15px; background: #3b82f6; border: none; color: white; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; margin-top: 20px; font-size: 15px;}
 
-        /* Map Fixes */
+        /* Map Integration */
         .map-wrapper { position: relative; width: 100%; height: 250px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.2); }
-        #map { width: 100%; height: 100%; background: #222; }
+        #map { width: 100%; height: 100%; background: #222;}
         .gps-btn { position: absolute; bottom: 15px; right: 15px; width: 45px; height: 45px; background: #fff; color: #3b82f6; border: none; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; font-size: 20px; display: flex; justify-content: center; align-items: center; z-index: 10; transition: 0.2s;}
         .gps-btn:hover { background: #3b82f6; color: #fff; }
 
@@ -85,50 +91,51 @@
 </head>
 <body>
 
+    <!-- UPDATED SIDEBAR -->
     <aside class="sidebar">
         <div class="logo-section"><h2>Local Boy Admin</h2></div>
         <ul class="menu">
             <li class="menu-item"><button class="menu-btn" onclick="window.location.href='dashboard.html'"><i class="fas fa-home"></i> Dashboard</button></li>
             
             <li class="menu-item"><button class="menu-btn">Groceries <i class="fas fa-chevron-down arrow"></i></button>
-                <ul class="submenu"><li><a href="admin_groceries.html">Inventory / Add Items</a></li></ul>
+                <ul class="submenu"><li><a onclick="window.location.href='admin_groceries.html'">Inventory / Add Items</a></li></ul>
             </li>
 
             <li class="menu-item"><button class="menu-btn">Customer App <i class="fas fa-chevron-down arrow"></i></button>
                 <ul class="submenu">
-                    <li><a href="promocode.html">Promocode</a></li>
-                    <li><a href="banners.html">Banners</a></li>
-                    <li><a href="customers.html">Customer Active/Block</a></li>
-                    <li><a href="delivery_charges.html">Delivery Charges</a></li>
-                    <li><a href="platform_fees.html">Platform Fees</a></li>
-                    <li><a href="wallet.html">Wallet Management</a></li>
+                    <li><a onclick="window.location.href='promocode.html'">Promocode</a></li>
+                    <li><a onclick="window.location.href='banners.html'">Banners</a></li>
+                    <li><a onclick="window.location.href='customers.html'">Customer Active/Block</a></li>
+                    <li><a onclick="window.location.href='delivery_charges.html'">Delivery Charges</a></li>
+                    <li><a onclick="window.location.href='platform_fees.html'">Platform Fees</a></li>
+                    <li><a onclick="window.location.href='wallet.html'">Wallet Management</a></li>
                 </ul>
             </li>
 
             <li class="menu-item"><button class="menu-btn active">Restaurant Partner <i class="fas fa-chevron-down arrow"></i></button>
                 <ul class="submenu" style="max-height: 500px;">
-                    <li><a href="add_restaurant.html" class="active-link">Adding / Edit Restaurant</a></li>
-                    <li><a href="restaurant_menu.html">Restaurant Menu</a></li>
-                    <li><a href="#">Restaurant History</a></li>
-                    <li><a href="#">Restaurant Payout</a></li>
-                    <li><a href="reviews.html">Reviews & Ratings</a></li>
+                    <li><a onclick="window.location.href='add_restaurant.html'" class="active-link">Adding / Edit Restaurant</a></li>
+                    <li><a onclick="window.location.href='restaurant_menu.html'">Restaurant Menu</a></li>
+                    <li><a onclick="window.location.href='restaurant_history.html'">Restaurant History</a></li>
+                    <li><a onclick="window.location.href='restaurant_payout.html'">Restaurant Payout</a></li>
+                    <li><a onclick="window.location.href='reviews.html'">Reviews & Ratings</a></li>
                 </ul>
             </li>
 
             <li class="menu-item">
                 <button class="menu-btn">Delivery Partner <i class="fas fa-chevron-down arrow"></i></button>
                 <ul class="submenu">
-                    <li><a href="#">Add/Edit Partner</a></li>
-                    <li><a href="#">Floating Cash</a></li>
-                    <li><a href="#">Live Location</a></li>
-                    <li><a href="#">Assign Order</a></li>
-                    <li><a href="#">Partner Payouts</a></li>
-                    <li><a href="#">App Settings</a></li>
+                    <li><a onclick="window.location.href='#'">Add/Edit Partner</a></li>
+                    <li><a onclick="window.location.href='#'">Floating Cash</a></li>
+                    <li><a onclick="window.location.href='#'">Live Location</a></li>
+                    <li><a onclick="window.location.href='#'">Assign Order</a></li>
+                    <li><a onclick="window.location.href='#'">Partner Payouts</a></li>
+                    <li><a onclick="window.location.href='#'">App Settings</a></li>
                 </ul>
             </li>
 
             <li class="menu-item"><button class="menu-btn" style="justify-content: flex-start; gap: 10px;" onclick="window.location.href='orders_admin.html'"><i class="fas fa-shopping-bag"></i> Orders History</button></li>
-            <li class="menu-item"><button class="menu-btn" style="justify-content: flex-start; gap: 10px;"><i class="fas fa-money-check"></i> Payouts History</button></li>
+            <li class="menu-item"><button class="menu-btn" style="justify-content: flex-start; gap: 10px;" onclick="window.location.href='payouts_history.html'"><i class="fas fa-money-check"></i> Payouts History</button></li>
         </ul>
     </aside>
 
@@ -143,6 +150,7 @@
         </div>
     </main>
 
+    <!-- MODAL FOR ADD/EDIT RESTAURANT -->
     <div class="modal-overlay" id="restModal">
         <div class="modal-card">
             <i class="fas fa-xmark close-modal" onclick="closeModal('restModal')"></i>
@@ -199,16 +207,21 @@
         </div>
     </div>
 
-    <!-- MAP FIX: Initialization function placed directly before the API script -->
+    <!-- Google Maps Script -->
     <script>
         let map, marker;
         function initMap() {
-            const defaultLoc = { lat: 16.2366, lng: 80.6405 }; 
-            map = new google.maps.Map(document.getElementById("map"), { zoom: 15, center: defaultLoc, disableDefaultUI: true });
-            marker = new google.maps.Marker({ position: defaultLoc, map: map, draggable: true, animation: google.maps.Animation.DROP });
+            renderMap(16.2366, 80.6405);
+        }
+        function renderMap(lat, lng) {
+            const loc = { lat: parseFloat(lat), lng: parseFloat(lng) };
+            const mapElement = document.getElementById("map");
             
-            document.getElementById('rLat').value = defaultLoc.lat;
-            document.getElementById('rLng').value = defaultLoc.lng;
+            map = new google.maps.Map(mapElement, { zoom: 16, center: loc, disableDefaultUI: true });
+            marker = new google.maps.Marker({ position: loc, map: map, draggable: true, animation: google.maps.Animation.DROP });
+            
+            document.getElementById('rLat').value = loc.lat;
+            document.getElementById('rLng').value = loc.lng;
 
             map.addListener('click', (e) => {
                 marker.setPosition(e.latLng);
@@ -221,35 +234,36 @@
                 document.getElementById('rLng').value = e.latLng.lng();
             });
         }
-
-        window.recenterMap = function(lat, lng) {
-            if(map && marker) {
-                const loc = { lat: parseFloat(lat), lng: parseFloat(lng) };
-                map.setCenter(loc);
-                marker.setPosition(loc);
-                document.getElementById('rLat').value = loc.lat;
-                document.getElementById('rLng').value = loc.lng;
-            }
-        }
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAITao9tzWyZuXcMiGCfoTF3GboS32_48U&callback=initMap" async defer></script>
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
         import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
-        import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-storage.js";
+        import { getStorage, ref as sRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-storage.js";
 
+        // ORIGINAL FIREBASE CONFIG (Login Safe)
         const firebaseConfig = {
-            apiKey: "AIzaSyCnFpeVwtaQ1u0_zrY3o50qQGE1SFZj0E0",
+            apiKey: "AIzaSyAvjFcKKiu4OMmQckYXMTejdBJh9tC6TjM",
             authDomain: "sri-vishnu-priya-finance-c591f.firebaseapp.com",
             databaseURL: "https://sri-vishnu-priya-finance-c591f-default-rtdb.firebaseio.com",
             projectId: "sri-vishnu-priya-finance-c591f",
-            storageBucket: "sri-vishnu-priya-finance-c591f.firebasestorage.app"
+            storageBucket: "sri-vishnu-priya-finance-c591f.firebasestorage.app",
+            messagingSenderId: "184676228358",
+            appId: "1:184676228358:web:c2b32b68debeeadadfd287",
+            measurementId: "G-E3TT96ZH1T"
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getDatabase(app);
         const storage = getStorage(app);
+
+        // Security check
+        onAuthStateChanged(auth, (user) => {
+            if (!user) window.location.href = "index.html";
+        });
 
         // Sidebar dropdowns
         document.querySelectorAll('.menu-btn').forEach(btn => {
@@ -262,14 +276,19 @@
             });
         });
 
-        // GPS Blue Dot Button
+        // GPS Button
         document.getElementById('gpsBtn').addEventListener('click', () => {
             const btn = document.getElementById('gpsBtn');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             if(navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
-                        window.recenterMap(position.coords.latitude, position.coords.longitude);
+                        const userLoc = { lat: position.coords.latitude, lng: position.coords.longitude };
+                        map.setCenter(userLoc);
+                        map.setZoom(17);
+                        marker.setPosition(userLoc);
+                        document.getElementById('rLat').value = userLoc.lat;
+                        document.getElementById('rLng').value = userLoc.lng;
                         btn.innerHTML = '<i class="fas fa-location-crosshairs"></i>';
                         btn.style.background = "#10b981"; 
                         btn.style.color = "white";
@@ -284,7 +303,7 @@
             }
         });
 
-        // --- MODAL LOGIC ---
+        // Modal Logic
         const restModal = document.getElementById('restModal');
         const restForm = document.getElementById('restForm');
         let restSelectedFile = null;
@@ -303,8 +322,12 @@
             
             restModal.classList.add('active');
             setTimeout(() => { 
-                google.maps.event.trigger(map, 'resize'); 
-                window.recenterMap(16.2366, 80.6405); 
+                google.maps.event.trigger(map, 'resize');
+                const loc = { lat: 16.2366, lng: 80.6405 };
+                map.setCenter(loc);
+                marker.setPosition(loc);
+                document.getElementById('rLat').value = loc.lat;
+                document.getElementById('rLng').value = loc.lng;
             }, 300);
         }
 
@@ -322,8 +345,26 @@
             }
         });
 
-        // --- SAVE / EDIT DATA ---
-        restForm.addEventListener('submit', async (e) => {
+        // Save / Edit Data
+        const restsRef = ref(db, 'restaurant_profiles');
+        
+        function saveDataToDB(profileData, editId, btn) {
+            if(editId) {
+                update(ref(db, `restaurant_profiles/${editId}`), profileData)
+                .then(() => {
+                    btn.innerText = "Save Restaurant Profile"; btn.disabled = false;
+                    closeModal('restModal');
+                }).catch(e => { alert(e.message); btn.innerText = "Save Restaurant Profile"; btn.disabled = false; });
+            } else {
+                push(restsRef, profileData)
+                .then(() => {
+                    btn.innerText = "Save Restaurant Profile"; btn.disabled = false;
+                    closeModal('restModal');
+                }).catch(e => { alert(e.message); btn.innerText = "Save Restaurant Profile"; btn.disabled = false; });
+            }
+        }
+
+        restForm.addEventListener('submit', (e) => {
             e.preventDefault();
             
             const acc = document.getElementById('bAcc').value;
@@ -337,7 +378,7 @@
             if(!editId && !restSelectedFile) { alert("Please upload an image for the new restaurant."); return; }
 
             const btn = document.getElementById('saveRestBtn');
-            btn.innerText = "Saving Profile..."; btn.disabled = true;
+            btn.innerText = "Preparing to upload..."; btn.disabled = true;
 
             const profileData = {
                 name: document.getElementById('rName').value,
@@ -358,38 +399,41 @@
 
             if(!editId) profileData.status = 'Open'; 
 
-            try {
-                if(restSelectedFile) {
-                    const fileName = `restaurants/${Date.now()}_${restSelectedFile.name}`;
-                    const storageRefObj = sRef(storage, fileName);
-                    const snapshot = await uploadBytes(storageRefObj, restSelectedFile);
-                    profileData.image = await getDownloadURL(snapshot.ref);
-                    profileData.storage_path = fileName;
-                } else if(editId) {
-                    profileData.image = document.getElementById('previewRestImage').src;
-                    profileData.storage_path = document.getElementById('existingImagePath').value;
-                }
-
-                if(editId) {
-                    await update(ref(db, `restaurant_profiles/${editId}`), profileData);
-                } else {
-                    await push(ref(db, 'restaurant_profiles'), profileData);
-                }
-
-                btn.innerText = "Save Restaurant Profile"; btn.disabled = false;
-                closeModal('restModal');
-            } catch (error) {
-                alert("Action Failed! Error: " + error.message);
-                btn.innerText = "Save Restaurant Profile"; btn.disabled = false;
+            if(restSelectedFile) {
+                const fileName = `restaurants/${Date.now()}_${restSelectedFile.name}`;
+                const storageRefObj = sRef(storage, fileName);
+                const uploadTask = uploadBytesResumable(storageRefObj, restSelectedFile);
+                
+                uploadTask.on('state_changed', 
+                    (snapshot) => {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        btn.innerText = `Uploading Image... ${Math.round(progress)}%`;
+                    }, 
+                    (error) => {
+                        alert("Image Upload Failed! " + error.message);
+                        btn.innerText = "Save Restaurant Profile"; btn.disabled = false;
+                    }, 
+                    () => {
+                        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                            profileData.image = downloadURL;
+                            profileData.storage_path = fileName;
+                            saveDataToDB(profileData, editId, btn);
+                        });
+                    }
+                );
+            } else if(editId) {
+                profileData.image = document.getElementById('previewRestImage').src;
+                profileData.storage_path = document.getElementById('existingImagePath').value;
+                saveDataToDB(profileData, editId, btn);
             }
         });
 
-        // --- FETCH AND DISPLAY RESTAURANTS (WITH FALLBACKS) ---
+        // Fetch and Display
         const restGrid = document.getElementById('restaurantsGrid');
         let allRestaurantsData = {};
         const fallbackImg = "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?q=80&w=400";
 
-        onValue(ref(db, 'restaurant_profiles'), (snapshot) => {
+        onValue(restsRef, (snapshot) => {
             restGrid.innerHTML = '';
             allRestaurantsData = {};
 
@@ -416,7 +460,6 @@
                             
                             <div class="rest-actions">
                                 <button class="action-btn edit edit-btn" data-key="${key}"><i class="fas fa-pen"></i> Edit Profile</button>
-                                <button class="action-btn delete del-btn" data-key="${key}"><i class="fas fa-trash"></i> Delete</button>
                                 
                                 <label class="switch" title="Open/Close Store">
                                     <input type="checkbox" class="toggle-rest-status" data-key="${key}" ${isOpen ? 'checked' : ''}>
@@ -430,11 +473,9 @@
             } else {
                 restGrid.innerHTML = '<p style="color: #888; grid-column: 1/-1; text-align: center;">No restaurants added yet.</p>';
             }
-        }, (error) => {
-            document.getElementById('loadingMsg').innerText = "Failed to load database.";
         });
 
-        // Event Delegation for Edit, Delete and Toggle
+        // Edit and Toggle
         restGrid.addEventListener('click', (e) => {
             const editBtn = e.target.closest('.edit-btn');
             if(editBtn) {
@@ -472,16 +513,12 @@
                 
                 setTimeout(() => { 
                     google.maps.event.trigger(map, 'resize'); 
-                    window.recenterMap(data.latitude || 16.2366, data.longitude || 80.6405); 
+                    const loc = { lat: parseFloat(data.latitude || 16.2366), lng: parseFloat(data.longitude || 80.6405) };
+                    map.setCenter(loc);
+                    marker.setPosition(loc);
+                    document.getElementById('rLat').value = loc.lat;
+                    document.getElementById('rLng').value = loc.lng;
                 }, 300);
-            }
-
-            const delBtn = e.target.closest('.del-btn');
-            if(delBtn) {
-                const key = delBtn.getAttribute('data-key');
-                if(confirm("Are you sure you want to completely delete this Restaurant?")) {
-                    remove(ref(db, `restaurant_profiles/${key}`));
-                }
             }
 
             if(e.target.classList.contains('toggle-rest-status')) {
