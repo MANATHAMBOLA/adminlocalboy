@@ -78,46 +78,66 @@
 </head>
 <body>
 
-    <!-- FULL Sidebar Menu -->
+    <!-- MASTER SIDEBAR WITH ALL HREFS -->
     <aside class="sidebar">
-        <div class="logo-section"><h2>Local Boy</h2></div>
+        <div class="logo-section">
+            <h2>Local Boy</h2>
+        </div>
+
         <ul class="menu">
             <li class="menu-item">
-                <button class="menu-btn active">Customer App <i class="fas fa-chevron-down arrow"></i></button>
+                <button class="menu-btn" onclick="window.location.href='dashboard.html'"><i class="fas fa-home"></i> Dashboard Overview</button>
+            </li>
+
+            <li class="menu-item">
+                <button class="menu-btn">Groceries Management <i class="fas fa-chevron-down arrow"></i></button>
+                <ul class="submenu">
+                    <li><a href="admin_groceries.html">Inventory / Add Items</a></li>
+                </ul>
+            </li>
+
+            <li class="menu-item">
+                <button class="menu-btn active" style="border-left: 4px solid #ff8a00;">Customer App <i class="fas fa-chevron-down arrow"></i></button>
                 <ul class="submenu" style="max-height: 500px;">
                     <li><a href="promocode.html">Promocode</a></li>
                     <li><a href="banners.html">Banners</a></li>
-                    <li><a href="customers.html" class="active-link">Customer Active/Block</a></li>
-                    <li><a href="#">Customer Delivery Charges</a></li>
-                    <li><a href="#">Platform Fees</a></li>
+                    <li><a href="customers.html" class="active-link" style="color: #ff8a00;">Customer Active/Block</a></li>
+                    <li><a href="delivery_charges.html">Delivery Charges</a></li>
+                    <li><a href="platform_fees.html">Platform Fees</a></li>
+                    <li><a href="wallet.html">Wallet Management</a></li>
                 </ul>
             </li>
 
             <li class="menu-item">
                 <button class="menu-btn">Restaurant Partner <i class="fas fa-chevron-down arrow"></i></button>
                 <ul class="submenu">
-                    <li><a href="#">Adding / Edit Restaurant</a></li>
-                    <li><a href="#">Restaurant Menu</a></li>
-                    <li><a href="#">Restaurant History</a></li>
-                    <li><a href="#">Restaurant Payout</a></li>
+                    <li><a href="add_restaurant.html">Adding / Edit Restaurant</a></li>
+                    <li><a href="restaurant_menu.html">Restaurant Menu</a></li>
+                    <li><a href="restaurant_history.html">Restaurant History</a></li>
+                    <li><a href="restaurant_payout.html">Restaurant Payout</a></li>
+                    <li><a href="reviews.html">Reviews & Ratings</a></li>
                 </ul>
             </li>
 
             <li class="menu-item">
                 <button class="menu-btn">Delivery Partner <i class="fas fa-chevron-down arrow"></i></button>
                 <ul class="submenu">
-                    <li><a href="#">Add / Edit Partner</a></li>
-                    <li><a href="#">Floating Cash</a></li>
-                    <li><a href="#">Live Location</a></li>
-                    <li><a href="#">Assign Order</a></li>
-                    <li><a href="#">Partner Payouts</a></li>
-                    <li><a href="#">App Settings</a></li>
+                    <li><a href="dp_add_edit.html">Add/Edit Partner</a></li>
+                    <li><a href="dp_floating_cash.html">Floating Cash</a></li>
+                    <li><a href="dp_live_location.html">Live Location</a></li>
+                    <li><a href="dp_assign_order.html">Assign Order</a></li>
+                    <li><a href="dp_payouts.html">Partner Payouts</a></li>
+                    <li><a href="dp_settings.html">App Settings</a></li>
                 </ul>
             </li>
 
-            <li class="menu-item"><button class="menu-btn" style="justify-content: flex-start; gap: 10px;">Orders History</button></li>
-            <li class="menu-item"><button class="menu-btn" style="justify-content: flex-start; gap: 10px;">Payouts History</button></li>
-            <li class="menu-item" style="margin-top: 20px;"><button class="menu-btn" onclick="window.location.href='dashboard.html'" style="color: #ff8a00;"><i class="fas fa-arrow-left"></i> &nbsp; Back to Dashboard</button></li>
+            <li class="menu-item">
+                <button class="menu-btn" style="justify-content: flex-start; gap: 10px;" onclick="window.location.href='orders_admin.html'"><i class="fas fa-shopping-bag"></i> Orders History</button>
+            </li>
+
+            <li class="menu-item">
+                <button class="menu-btn" style="justify-content: flex-start; gap: 10px;" onclick="window.location.href='payouts_history.html'"><i class="fas fa-money-check"></i> Payouts History</button>
+            </li>
         </ul>
     </aside>
 
@@ -171,6 +191,7 @@
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
         import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
 
+        // ORIGINAL FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyAvjFcKKiu4OMmQckYXMTejdBJh9tC6TjM",
             authDomain: "sri-vishnu-priya-finance-c591f.firebaseapp.com",
@@ -194,7 +215,11 @@
                 const submenu = this.nextElementSibling;
                 if(submenu && submenu.classList.contains('submenu')) {
                     this.classList.toggle('active');
-                    submenu.style.maxHeight = submenu.style.maxHeight ? null : submenu.scrollHeight + "px";
+                    if (submenu.style.maxHeight) {
+                        submenu.style.maxHeight = null;
+                    } else {
+                        submenu.style.maxHeight = submenu.scrollHeight + "px";
+                    }
                 }
             });
         });
