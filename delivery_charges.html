@@ -22,7 +22,7 @@
         .arrow { font-size: 12px; transition: transform 0.3s; }
         .menu-btn.active .arrow { transform: rotate(180deg); }
         .submenu { list-style: none; background-color: #151525; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
-        .submenu li a { display: block; padding: 12px 25px 12px 50px; font-size: 14px; color: #888; text-decoration: none; transition: all 0.2s; }
+        .submenu li a { display: block; padding: 12px 25px 12px 50px; font-size: 14px; color: #888; text-decoration: none; transition: all 0.2s; cursor: pointer; }
         .submenu li a:hover, .submenu li a.active-link { color: #ff8a00; background: rgba(255, 255, 255, 0.02); }
 
         /* Main Content */
@@ -81,46 +81,66 @@
 </head>
 <body>
 
-    <!-- FULL Sidebar Menu -->
+    <!-- MASTER SIDEBAR WITH ALL HREFS -->
     <aside class="sidebar">
-        <div class="logo-section"><h2>Local Boy</h2></div>
+        <div class="logo-section">
+            <h2>Local Boy</h2>
+        </div>
+
         <ul class="menu">
             <li class="menu-item">
-                <button class="menu-btn active">Customer App <i class="fas fa-chevron-down arrow"></i></button>
+                <button class="menu-btn" onclick="window.location.href='dashboard.html'"><i class="fas fa-home"></i> Dashboard Overview</button>
+            </li>
+
+            <li class="menu-item">
+                <button class="menu-btn">Groceries Management <i class="fas fa-chevron-down arrow"></i></button>
+                <ul class="submenu">
+                    <li><a href="admin_groceries.html">Inventory / Add Items</a></li>
+                </ul>
+            </li>
+
+            <li class="menu-item">
+                <button class="menu-btn active" style="border-left: 4px solid #ff8a00;">Customer App <i class="fas fa-chevron-down arrow"></i></button>
                 <ul class="submenu" style="max-height: 500px;">
                     <li><a href="promocode.html">Promocode</a></li>
                     <li><a href="banners.html">Banners</a></li>
                     <li><a href="customers.html">Customer Active/Block</a></li>
-                    <li><a href="delivery_charges.html" class="active-link">Customer Delivery Charges</a></li>
-                    <li><a href="#">Platform Fees</a></li>
+                    <li><a href="delivery_charges.html" class="active-link" style="color: #ff8a00;">Delivery Charges</a></li>
+                    <li><a href="platform_fees.html">Platform Fees</a></li>
+                    <li><a href="wallet.html">Wallet Management</a></li>
                 </ul>
             </li>
 
             <li class="menu-item">
                 <button class="menu-btn">Restaurant Partner <i class="fas fa-chevron-down arrow"></i></button>
                 <ul class="submenu">
-                    <li><a href="#">Adding / Edit Restaurant</a></li>
-                    <li><a href="#">Restaurant Menu</a></li>
-                    <li><a href="#">Restaurant History</a></li>
-                    <li><a href="#">Restaurant Payout</a></li>
+                    <li><a href="add_restaurant.html">Adding / Edit Restaurant</a></li>
+                    <li><a href="restaurant_menu.html">Restaurant Menu</a></li>
+                    <li><a href="restaurant_history.html">Restaurant History</a></li>
+                    <li><a href="restaurant_payout.html">Restaurant Payout</a></li>
+                    <li><a href="reviews.html">Reviews & Ratings</a></li>
                 </ul>
             </li>
 
             <li class="menu-item">
                 <button class="menu-btn">Delivery Partner <i class="fas fa-chevron-down arrow"></i></button>
                 <ul class="submenu">
-                    <li><a href="#">Add / Edit Partner</a></li>
-                    <li><a href="#">Floating Cash</a></li>
-                    <li><a href="#">Live Location</a></li>
-                    <li><a href="#">Assign Order</a></li>
-                    <li><a href="#">Partner Payouts</a></li>
-                    <li><a href="#">App Settings</a></li>
+                    <li><a href="dp_add_edit.html">Add/Edit Partner</a></li>
+                    <li><a href="dp_floating_cash.html">Floating Cash</a></li>
+                    <li><a href="dp_live_location.html">Live Location</a></li>
+                    <li><a href="dp_assign_order.html">Assign Order</a></li>
+                    <li><a href="dp_payouts.html">Partner Payouts</a></li>
+                    <li><a href="dp_settings.html">App Settings</a></li>
                 </ul>
             </li>
 
-            <li class="menu-item"><button class="menu-btn" style="justify-content: flex-start; gap: 10px;">Orders History</button></li>
-            <li class="menu-item"><button class="menu-btn" style="justify-content: flex-start; gap: 10px;">Payouts History</button></li>
-            <li class="menu-item" style="margin-top: 20px;"><button class="menu-btn" onclick="window.location.href='dashboard.html'" style="color: #ff8a00;"><i class="fas fa-arrow-left"></i> &nbsp; Back to Dashboard</button></li>
+            <li class="menu-item">
+                <button class="menu-btn" style="justify-content: flex-start; gap: 10px;" onclick="window.location.href='orders_admin.html'"><i class="fas fa-shopping-bag"></i> Orders History</button>
+            </li>
+
+            <li class="menu-item">
+                <button class="menu-btn" style="justify-content: flex-start; gap: 10px;" onclick="window.location.href='payouts_history.html'"><i class="fas fa-money-check"></i> Payouts History</button>
+            </li>
         </ul>
     </aside>
 
@@ -210,8 +230,9 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
-        import { getDatabase, ref, push, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
+        import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
 
+        // ORIGINAL FIREBASE CONFIG (Login Safe)
         const firebaseConfig = {
             apiKey: "AIzaSyAvjFcKKiu4OMmQckYXMTejdBJh9tC6TjM",
             authDomain: "sri-vishnu-priya-finance-c591f.firebaseapp.com",
@@ -219,23 +240,29 @@
             projectId: "sri-vishnu-priya-finance-c591f",
             storageBucket: "sri-vishnu-priya-finance-c591f.firebasestorage.app",
             messagingSenderId: "184676228358",
-            appId: "1:184676228358:web:c2b32b68debeeadadfd287"
+            appId: "1:184676228358:web:c2b32b68debeeadadfd287",
+            measurementId: "G-E3TT96ZH1T"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
 
+        // Security check
         onAuthStateChanged(auth, (user) => { if (!user) window.location.href = "index.html"; });
 
-        // Sidebar
+        // Sidebar Accordion Logic
         const menuBtns = document.querySelectorAll('.menu-btn');
         menuBtns.forEach(btn => {
             btn.addEventListener('click', function() {
                 const submenu = this.nextElementSibling;
                 if(submenu && submenu.classList.contains('submenu')) {
                     this.classList.toggle('active');
-                    submenu.style.maxHeight = submenu.style.maxHeight ? null : submenu.scrollHeight + "px";
+                    if (submenu.style.maxHeight) {
+                        submenu.style.maxHeight = null;
+                    } else {
+                        submenu.style.maxHeight = submenu.scrollHeight + "px";
+                    }
                 }
             });
         });
