@@ -7,6 +7,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Firebase COMPAT Web SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body { display: flex; height: 100vh; background-color: #121212; color: #ffffff; overflow: hidden; }
@@ -22,7 +27,7 @@
         .arrow { font-size: 12px; transition: transform 0.3s; }
         .menu-btn.active .arrow { transform: rotate(180deg); }
         .submenu { list-style: none; background-color: #151525; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
-        .submenu li a { display: block; padding: 12px 25px 12px 50px; font-size: 13px; color: #888; text-decoration: none; transition: all 0.2s; }
+        .submenu li a { display: block; padding: 12px 25px 12px 50px; font-size: 13px; color: #888; text-decoration: none; transition: all 0.2s; cursor: pointer; }
         .submenu li a:hover, .submenu li a.active-link { color: #3b82f6; background: rgba(255, 255, 255, 0.02); }
 
         /* Main Content */
@@ -52,7 +57,7 @@
         
         .menu-actions { display: flex; flex-direction: column; gap: 10px; justify-content: center;}
         .action-icon { cursor: pointer; padding: 8px; border-radius: 6px; background: rgba(255,255,255,0.05); transition: 0.2s; text-align: center;}
-        .action-icon.edit { color: #3b82f6; } .action-icon.edit:hover { background: #3b82f6; color: white;}
+        .action-icon.edit { color: #f59e0b; } .action-icon.edit:hover { background: #f59e0b; color: white;}
         .action-icon.delete { color: #ff4c4c; } .action-icon.delete:hover { background: #ff4c4c; color: white;}
 
         /* Modal */
@@ -75,7 +80,7 @@
         .upload-area:hover { border-color: #3b82f6; }
         #previewMenuImage { max-height: 100px; border-radius: 8px; display: none; margin: 10px auto 0; }
 
-        .btn-save { padding: 15px; background: #3b82f6; border: none; color: white; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; margin-top: 10px; font-size: 15px;}
+        .btn-save { padding: 15px; background: linear-gradient(45deg, #3b82f6, #8b5cf6); border: none; color: white; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; margin-top: 10px; font-size: 15px;}
 
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #1a1a2e; }
@@ -84,16 +89,26 @@
 </head>
 <body>
 
+    <!-- MASTER SIDEBAR -->
     <aside class="sidebar">
-        <div class="logo-section"><h2>Local Boy Admin</h2></div>
+        <div class="logo-section">
+            <h2>Local Boy Admin</h2>
+        </div>
+
         <ul class="menu">
-            <li class="menu-item"><button class="menu-btn" onclick="window.location.href='dashboard.html'"><i class="fas fa-home"></i> Dashboard</button></li>
-            
-            <li class="menu-item"><button class="menu-btn">Groceries <i class="fas fa-chevron-down arrow"></i></button>
-                <ul class="submenu"><li><a href="admin_groceries.html">Inventory / Add Items</a></li></ul>
+            <li class="menu-item">
+                <button class="menu-btn" onclick="window.location.href='dashboard.html'"><i class="fas fa-home"></i> Dashboard Overview</button>
             </li>
 
-            <li class="menu-item"><button class="menu-btn">Customer App <i class="fas fa-chevron-down arrow"></i></button>
+            <li class="menu-item">
+                <button class="menu-btn">Groceries Management <i class="fas fa-chevron-down arrow"></i></button>
+                <ul class="submenu">
+                    <li><a href="admin_groceries.html">Inventory / Add Items</a></li>
+                </ul>
+            </li>
+
+            <li class="menu-item">
+                <button class="menu-btn">Customer App <i class="fas fa-chevron-down arrow"></i></button>
                 <ul class="submenu">
                     <li><a href="promocode.html">Promocode</a></li>
                     <li><a href="banners.html">Banners</a></li>
@@ -104,12 +119,13 @@
                 </ul>
             </li>
 
-            <li class="menu-item"><button class="menu-btn active">Restaurant Partner <i class="fas fa-chevron-down arrow"></i></button>
+            <li class="menu-item">
+                <button class="menu-btn active" style="border-left: 4px solid #3b82f6;">Restaurant Partner <i class="fas fa-chevron-down arrow"></i></button>
                 <ul class="submenu" style="max-height: 500px;">
                     <li><a href="add_restaurant.html">Adding / Edit Restaurant</a></li>
-                    <li><a href="restaurant_menu.html" class="active-link">Restaurant Menu</a></li>
-                    <li><a href="#">Restaurant History</a></li>
-                    <li><a href="#">Restaurant Payout</a></li>
+                    <li><a href="restaurant_menu.html" class="active-link" style="color: #3b82f6;">Restaurant Menu</a></li>
+                    <li><a href="restaurant_history.html">Restaurant History</a></li>
+                    <li><a href="restaurant_payout.html">Restaurant Payout</a></li>
                     <li><a href="reviews.html">Reviews & Ratings</a></li>
                 </ul>
             </li>
@@ -117,17 +133,22 @@
             <li class="menu-item">
                 <button class="menu-btn">Delivery Partner <i class="fas fa-chevron-down arrow"></i></button>
                 <ul class="submenu">
-                    <li><a href="#">Add/Edit Partner</a></li>
-                    <li><a href="#">Floating Cash</a></li>
-                    <li><a href="#">Live Location</a></li>
-                    <li><a href="#">Assign Order</a></li>
-                    <li><a href="#">Partner Payouts</a></li>
-                    <li><a href="#">App Settings</a></li>
+                    <li><a href="dp_add_edit.html">Add/Edit Partner</a></li>
+                    <li><a href="dp_floating_cash.html">Floating Cash</a></li>
+                    <li><a href="dp_live_location.html">Live Location</a></li>
+                    <li><a href="dp_assign_order.html">Assign Order</a></li>
+                    <li><a href="dp_payouts.html">Partner Payouts</a></li>
+                    <li><a href="dp_settings.html">App Settings</a></li>
                 </ul>
             </li>
 
-            <li class="menu-item"><button class="menu-btn" style="justify-content: flex-start; gap: 10px;" onclick="window.location.href='orders_admin.html'"><i class="fas fa-shopping-bag"></i> Orders History</button></li>
-            <li class="menu-item"><button class="menu-btn" style="justify-content: flex-start; gap: 10px;"><i class="fas fa-money-check"></i> Payouts History</button></li>
+            <li class="menu-item">
+                <button class="menu-btn" style="justify-content: flex-start; gap: 10px;" onclick="window.location.href='orders_admin.html'"><i class="fas fa-shopping-bag"></i> Orders History</button>
+            </li>
+
+            <li class="menu-item">
+                <button class="menu-btn" style="justify-content: flex-start; gap: 10px;" onclick="window.location.href='payouts_history.html'"><i class="fas fa-money-check"></i> Payouts History</button>
+            </li>
         </ul>
     </aside>
 
@@ -213,22 +234,24 @@
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
-        import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
-        import { getStorage, ref as sRef, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-storage.js";
-
+    <script>
+        // Exact Working Firebase Config (Compat + .appspot.com)
         const firebaseConfig = {
-            apiKey: "AIzaSyCnFpeVwtaQ1u0_zrY3o50qQGE1SFZj0E0",
+            apiKey: "AIzaSyAvjFcKKiu4OMmQckYXMTejdBJh9tC6TjM",
             authDomain: "sri-vishnu-priya-finance-c591f.firebaseapp.com",
             databaseURL: "https://sri-vishnu-priya-finance-c591f-default-rtdb.firebaseio.com",
             projectId: "sri-vishnu-priya-finance-c591f",
-            storageBucket: "sri-vishnu-priya-finance-c591f.firebasestorage.app"
+            storageBucket: "sri-vishnu-priya-finance-c591f.appspot.com",
+            messagingSenderId: "184676228358",
+            appId: "1:184676228358:web:c2b32b68debeeadadfd287",
+            measurementId: "G-E3TT96ZH1T"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const storage = getStorage(app);
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const database = firebase.database();
+        const storage = firebase.storage();
 
         // Sidebar dropdowns
         document.querySelectorAll('.menu-btn').forEach(btn => {
@@ -236,7 +259,11 @@
                 const submenu = this.nextElementSibling;
                 if(submenu && submenu.classList.contains('submenu')) {
                     this.classList.toggle('active');
-                    submenu.style.maxHeight = submenu.style.maxHeight ? null : submenu.scrollHeight + "px";
+                    if (submenu.style.maxHeight) {
+                        submenu.style.maxHeight = null;
+                    } else {
+                        submenu.style.maxHeight = submenu.scrollHeight + "px";
+                    }
                 }
             });
         });
@@ -247,7 +274,7 @@
         let selectedRestId = null;
         let currentMenuData = {};
 
-        onValue(ref(db, 'restaurant_profiles'), (snapshot) => {
+        database.ref('restaurant_profiles').on('value', (snapshot) => {
             restSelect.innerHTML = '<option value="">-- Choose a Restaurant --</option>';
             if(snapshot.exists()) {
                 snapshot.forEach((child) => {
@@ -277,7 +304,7 @@
             const grid = document.getElementById('menuItemsGrid');
             grid.innerHTML = '<p style="color: #888; grid-column: 1/-1; text-align: center;"><i class="fas fa-spinner fa-spin"></i> Loading Menu...</p>';
 
-            onValue(ref(db, `restaurant_menus/${restId}`), (snapshot) => {
+            database.ref(`restaurant_menus/${restId}`).on('value', (snapshot) => {
                 grid.innerHTML = '';
                 currentMenuData = {};
 
@@ -340,7 +367,7 @@
             } else { discInput.value = 0; }
         }
 
-        // Image Upload
+        // Image Upload Handle
         document.getElementById('menuUploadArea').addEventListener('click', () => document.getElementById('menuFile').click());
         document.getElementById('menuFile').addEventListener('change', (e) => {
             menuSelectedFile = e.target.files[0];
@@ -356,7 +383,7 @@
         });
 
         // Save / Edit Item
-        document.getElementById('menuForm').addEventListener('submit', async (e) => {
+        document.getElementById('menuForm').addEventListener('submit', function(e) {
             e.preventDefault();
             if(!selectedRestId) return;
 
@@ -364,7 +391,7 @@
             const existingPath = document.getElementById('existingMenuImagePath').value;
             
             const btn = document.getElementById('saveMenuBtn');
-            btn.innerText = "Saving..."; btn.disabled = true;
+            btn.innerText = "Connecting to Firebase..."; btn.disabled = true;
 
             const itemData = {
                 name: document.getElementById('menuItemName').value,
@@ -376,33 +403,51 @@
                 desc: document.getElementById('menuDesc').value || ""
             };
 
-            try {
-                if(menuSelectedFile) {
-                    const fileName = `menus/${Date.now()}_${menuSelectedFile.name}`;
-                    const uploadTask = await uploadBytesResumable(sRef(storage, fileName), menuSelectedFile);
-                    itemData.image = await getDownloadURL(uploadTask.ref);
-                    itemData.storage_path = fileName;
-                } else {
-                    if(editId) {
-                        itemData.image = currentMenuData[editId].image || "";
-                        itemData.storage_path = existingPath;
-                    } else {
-                        itemData.image = ""; 
+            if(menuSelectedFile) {
+                const fileName = `menus/${Date.now()}_${menuSelectedFile.name}`;
+                const storageRef = storage.ref().child(fileName);
+                const uploadTask = storageRef.put(menuSelectedFile);
+                
+                uploadTask.on('state_changed', 
+                    (snapshot) => {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        btn.innerText = `Uploading Image... ${Math.round(progress)}%`;
+                    }, 
+                    (error) => {
+                        alert("Image Upload Failed! " + error.message);
+                        btn.innerText = editId ? "Update Item" : "Save Item"; 
+                        btn.disabled = false;
+                    }, 
+                    () => {
+                        uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                            itemData.image = downloadURL;
+                            itemData.storage_path = fileName;
+                            
+                            if(editId) {
+                                database.ref(`restaurant_menus/${selectedRestId}/${editId}`).update(itemData).then(() => {
+                                    btn.innerText = "Save Item"; btn.disabled = false; closeModal();
+                                });
+                            } else {
+                                database.ref(`restaurant_menus/${selectedRestId}`).push(itemData).then(() => {
+                                    btn.innerText = "Save Item"; btn.disabled = false; closeModal();
+                                });
+                            }
+                        });
                     }
-                }
-
+                );
+            } else {
                 if(editId) {
-                    await update(ref(db, `restaurant_menus/${selectedRestId}/${editId}`), itemData);
+                    itemData.image = currentMenuData[editId].image || "";
+                    itemData.storage_path = existingPath;
+                    database.ref(`restaurant_menus/${selectedRestId}/${editId}`).update(itemData).then(() => {
+                        btn.innerText = "Save Item"; btn.disabled = false; closeModal();
+                    });
                 } else {
-                    await push(ref(db, `restaurant_menus/${selectedRestId}`), itemData);
+                    itemData.image = ""; 
+                    database.ref(`restaurant_menus/${selectedRestId}`).push(itemData).then(() => {
+                        btn.innerText = "Save Item"; btn.disabled = false; closeModal();
+                    });
                 }
-
-                btn.innerText = "Save Item"; btn.disabled = false;
-                closeModal();
-            } catch (error) {
-                alert("Error saving item: " + error.message);
-                btn.innerText = editId ? "Update Item" : "Save Item"; 
-                btn.disabled = false;
             }
         });
 
@@ -443,8 +488,10 @@
                 const key = e.target.getAttribute('data-key');
                 const path = e.target.getAttribute('data-path');
                 if(confirm("Delete this menu item?")) {
-                    remove(ref(db, `restaurant_menus/${selectedRestId}/${key}`)).then(() => {
-                        if(path) deleteObject(sRef(storage, path)).catch(err=>console.log(err));
+                    database.ref(`restaurant_menus/${selectedRestId}/${key}`).remove().then(() => {
+                        if(path) {
+                            storage.ref().child(path).delete().catch(err=>console.log(err));
+                        }
                     });
                 }
             }
