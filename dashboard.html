@@ -54,6 +54,7 @@
 </head>
 <body>
 
+    <!-- UPDATED SIDEBAR WITH ALL HREF LINKS -->
     <aside class="sidebar">
         <div class="logo-section">
             <h2>Local Boy</h2>
@@ -67,42 +68,42 @@
             <li class="menu-item">
                 <button class="menu-btn">Groceries Management <i class="fas fa-chevron-down arrow"></i></button>
                 <ul class="submenu">
-                    <li><a onclick="window.location.href='admin_groceries.html'">Inventory / Add Items</a></li>
+                    <li><a href="admin_groceries.html">Inventory / Add Items</a></li>
                 </ul>
             </li>
 
             <li class="menu-item">
                 <button class="menu-btn">Customer App <i class="fas fa-chevron-down arrow"></i></button>
                 <ul class="submenu">
-                    <li><a onclick="window.location.href='promocode.html'">Promocode</a></li>
-                    <li><a onclick="window.location.href='banners.html'">Banners</a></li>
-                    <li><a onclick="window.location.href='customers.html'">Customer Active/Block</a></li>
-                    <li><a onclick="window.location.href='delivery_charges.html'">Delivery Charges</a></li>
-                    <li><a onclick="window.location.href='platform_fees.html'">Platform Fees</a></li>
-                    <li><a onclick="window.location.href='wallet.html'">Wallet Management</a></li>
+                    <li><a href="promocode.html">Promocode</a></li>
+                    <li><a href="banners.html">Banners</a></li>
+                    <li><a href="customers.html">Customer Active/Block</a></li>
+                    <li><a href="delivery_charges.html">Delivery Charges</a></li>
+                    <li><a href="platform_fees.html">Platform Fees</a></li>
+                    <li><a href="wallet.html">Wallet Management</a></li>
                 </ul>
             </li>
 
             <li class="menu-item">
                 <button class="menu-btn">Restaurant Partner <i class="fas fa-chevron-down arrow"></i></button>
                 <ul class="submenu">
-                    <li><a onclick="window.location.href='add_restaurant.html'">Adding / Edit Restaurant</a></li>
-                    <li><a onclick="window.location.href='restaurant_menu.html'">Restaurant Menu</a></li>
-                    <li><a onclick="window.location.href='restaurant_history.html'">Restaurant History</a></li>
-                    <li><a onclick="window.location.href='#'">Restaurant Payout</a></li>
-                    <li><a onclick="window.location.href='reviews.html'">Reviews & Ratings</a></li>
+                    <li><a href="add_restaurant.html">Adding / Edit Restaurant</a></li>
+                    <li><a href="restaurant_menu.html">Restaurant Menu</a></li>
+                    <li><a href="restaurant_history.html">Restaurant History</a></li>
+                    <li><a href="restaurant_payout.html">Restaurant Payout</a></li>
+                    <li><a href="reviews.html">Reviews & Ratings</a></li>
                 </ul>
             </li>
 
             <li class="menu-item">
                 <button class="menu-btn">Delivery Partner <i class="fas fa-chevron-down arrow"></i></button>
                 <ul class="submenu">
-                    <li><a onclick="window.location.href='#'">Add/Edit Partner</a></li>
-                    <li><a onclick="window.location.href='#'">Floating Cash</a></li>
-                    <li><a onclick="window.location.href='#'">Live Location</a></li>
-                    <li><a onclick="window.location.href='#'">Assign Order</a></li>
-                    <li><a onclick="window.location.href='#'">Partner Payouts</a></li>
-                    <li><a onclick="window.location.href='#'">App Settings</a></li>
+                    <li><a href="#">Add/Edit Partner</a></li>
+                    <li><a href="#">Floating Cash</a></li>
+                    <li><a href="#">Live Location</a></li>
+                    <li><a href="#">Assign Order</a></li>
+                    <li><a href="#">Partner Payouts</a></li>
+                    <li><a href="#">App Settings</a></li>
                 </ul>
             </li>
 
@@ -116,12 +117,14 @@
         </ul>
     </aside>
 
+    <!-- Main Content -->
     <main class="main-content">
         <div class="header">
             <h1>Dashboard Overview</h1>
             <button class="logout-btn" id="logoutBtn">Logout</button>
         </div>
 
+        <!-- Stats Cards -->
         <div class="dashboard-cards">
             <div class="card" onclick="window.location.href='admin_groceries.html'" style="cursor: pointer; border-color: rgba(16, 185, 129, 0.3);">
                 <div class="card-title" style="color: #10b981;"><i class="fas fa-shopping-basket"></i> Groceries Inventory</div>
@@ -155,25 +158,38 @@
         </div>
     </main>
 
+    <!-- Firebase SDKs using ES Modules -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
 
+        // ORIGINAL FIREBASE CONFIG (Login Safe)
         const firebaseConfig = {
-            apiKey: "AIzaSyCnFpeVwtaQ1u0_zrY3o50qQGE1SFZj0E0",
+            apiKey: "AIzaSyAvjFcKKiu4OMmQckYXMTejdBJh9tC6TjM",
             authDomain: "sri-vishnu-priya-finance-c591f.firebaseapp.com",
             databaseURL: "https://sri-vishnu-priya-finance-c591f-default-rtdb.firebaseio.com",
             projectId: "sri-vishnu-priya-finance-c591f",
-            storageBucket: "sri-vishnu-priya-finance-c591f.firebasestorage.app"
+            storageBucket: "sri-vishnu-priya-finance-c591f.firebasestorage.app",
+            messagingSenderId: "184676228358",
+            appId: "1:184676228358:web:c2b32b68debeeadadfd287",
+            measurementId: "G-E3TT96ZH1T"
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // Simple Logout Logic (Direct redirect without Firebase Auth check)
+        // Security check
+        onAuthStateChanged(auth, (user) => {
+            if (!user) window.location.href = "index.html";
+        });
+
+        // Logout Logic
         document.getElementById('logoutBtn').addEventListener('click', () => {
             if(confirm("Are you sure you want to logout?")) {
-                window.location.href = "index.html";
+                signOut(auth).then(() => { window.location.href = "index.html"; })
+                .catch((error) => { alert("Error logging out: " + error.message); });
             }
         });
 
