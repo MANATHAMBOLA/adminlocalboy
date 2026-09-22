@@ -3,16 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Local Boy Admin - Groceries Inventory</title>
+    <title>Local Boy Admin - Groceries</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Firebase COMPAT Web SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body { display: flex; height: 100vh; background-color: #121212; color: #ffffff; overflow: hidden; }
 
-        /* --- UPDATED FULL SIDEBAR --- */
-        .sidebar { width: 280px; background-color: #1a1a2e; border-right: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column; overflow-y: auto; }
+        /* --- FULL SIDEBAR --- */
+        .sidebar { width: 280px; background-color: #1a1a2e; border-right: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column; overflow-y: auto; z-index: 10; }
         .logo-section { padding: 25px 20px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
         .logo-section h2 { font-size: 24px; font-weight: 600; background: linear-gradient(45deg, #10b981, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .menu { padding: 20px 0; list-style: none; }
@@ -22,77 +27,69 @@
         .arrow { font-size: 12px; transition: transform 0.3s; }
         .menu-btn.active .arrow { transform: rotate(180deg); }
         .submenu { list-style: none; background-color: #151525; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
-        .submenu li a { display: block; padding: 12px 25px 12px 50px; font-size: 13px; color: #888; text-decoration: none; transition: all 0.2s; cursor: pointer;}
+        .submenu li a { display: block; padding: 12px 25px 12px 50px; font-size: 13px; color: #888; text-decoration: none; transition: all 0.2s; cursor: pointer; }
         .submenu li a:hover, .submenu li a.active-link { color: #10b981; background: rgba(255, 255, 255, 0.02); }
 
         /* Main Content */
-        .main-content { flex: 1; padding: 30px; overflow-y: auto; background: radial-gradient(circle at top right, #1a1a2e, #121212); }
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; background: radial-gradient(circle at top right, #1a1a2e, #121212); position: relative; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .header h1 { font-size: 26px; font-weight: 500; }
         .add-btn { padding: 12px 24px; background: linear-gradient(45deg, #10b981, #3b82f6); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer; box-shadow: 0 8px 20px rgba(16, 185, 129, 0.2); transition: 0.3s; }
         .add-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(16, 185, 129, 0.4); }
 
-        /* Stats Row */
-        .stats-row { display: flex; gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 12px; flex: 1; backdrop-filter: blur(10px); }
-        .stat-card h3 { color: #b3b3b3; font-size: 13px; font-weight: 400; margin-bottom: 5px; }
-        .stat-card p { font-size: 24px; font-weight: 600; color: #fff; }
-
-        /* Table */
-        .table-container { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 20px; overflow-x: auto; backdrop-filter: blur(10px); }
-        table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.05); vertical-align: middle;}
-        th { color: #b3b3b3; font-weight: 500; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
-        td { font-size: 14px; color: #eee; }
-        tr:hover { background: rgba(255, 255, 255, 0.02); }
+        /* Filter Box */
+        .filter-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); padding: 15px 20px; border-radius: 12px; margin-bottom: 25px; display: flex; gap: 15px; align-items: center;}
+        .filter-box select { padding: 10px 15px; background: rgba(0, 0, 0, 0.4); border: 1px solid #10b981; border-radius: 8px; color: #fff; font-size: 14px; outline: none; cursor: pointer;}
         
-        .item-img { width: 45px; height: 45px; border-radius: 8px; object-fit: cover; background: #fff; padding: 2px;}
-        .discount-badge { background: #3b82f6; color: white; font-size: 10px; padding: 3px 6px; border-radius: 4px; font-weight: 700; margin-left: 8px;}
-
-        /* Toggle Switch for Stock */
-        .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ff4c4c; transition: .4s; border-radius: 22px; }
-        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: #10b981; }
-        input:checked + .slider:before { transform: translateX(18px); }
-
-        .action-icon { cursor: pointer; color: #b3b3b3; font-size: 16px; transition: 0.3s; }
-        .action-icon:hover { color: #ff4c4c; }
+        /* Grid */
+        .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .item-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 15px; display: flex; gap: 15px; transition: 0.3s;}
+        .item-card:hover { border-color: rgba(16, 185, 129, 0.3); transform: translateY(-3px);}
+        .item-img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; background: #fff; }
+        .item-info { flex: 1; display: flex; flex-direction: column; justify-content: center;}
+        .item-info h4 { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 2px;}
+        .item-info p { font-size: 12px; color: #888; margin-bottom: 5px; }
+        .price-tag { font-size: 14px; font-weight: 700; color: #10b981; }
+        .discount-tag { font-size: 10px; background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 2px 6px; border-radius: 4px; margin-left: 5px;}
+        
+        .item-actions { display: flex; flex-direction: column; gap: 10px; justify-content: center;}
+        .action-icon { cursor: pointer; padding: 8px; border-radius: 6px; background: rgba(255,255,255,0.05); transition: 0.2s; text-align: center;}
+        .action-icon.edit { color: #f59e0b; } .action-icon.edit:hover { background: #f59e0b; color: white;}
+        .action-icon.delete { color: #ff4c4c; } .action-icon.delete:hover { background: #ff4c4c; color: white;}
 
         /* Modal */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.3s; z-index: 100; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.3s; z-index: 1000; }
         .modal-overlay.active { opacity: 1; visibility: visible; }
-        .modal-card { background: #1a1a2e; border: 1px solid rgba(255, 255, 255, 0.1); padding: 30px; border-radius: 16px; width: 100%; max-width: 600px; transform: translateY(-20px); transition: 0.3s; max-height: 90vh; overflow-y: auto;}
+        .modal-card { background: #1a1a2e; border: 1px solid rgba(255, 255, 255, 0.1); padding: 30px; border-radius: 16px; width: 100%; max-width: 500px; transform: translateY(-20px); transition: 0.3s; max-height: 90vh; overflow-y: auto; position: relative;}
         .modal-overlay.active .modal-card { transform: translateY(0); }
-        .modal-card h2 { margin-bottom: 20px; font-size: 20px; color: #10b981; }
-        
-        /* Upload Area */
-        .upload-area { border: 2px dashed rgba(255, 255, 255, 0.2); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; margin-bottom: 15px; background: rgba(0, 0, 0, 0.2); transition: 0.3s;}
-        .upload-area:hover { border-color: #10b981; }
-        #previewImage { max-height: 100px; border-radius: 8px; display: none; margin: 10px auto 0; }
+        .modal-card h2 { margin-bottom: 20px; font-size: 20px; color: #10b981; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05);}
+        .close-modal { position: absolute; top: 25px; right: 25px; font-size: 20px; color: #888; cursor: pointer; }
+        .close-modal:hover { color: #ff4c4c; }
 
+        /* Form */
         .form-row { display: flex; gap: 15px; margin-bottom: 15px; }
         .form-group { flex: 1; }
         .form-group label { display: block; font-size: 12px; color: #b3b3b3; margin-bottom: 5px; }
-        .form-group input, .form-group select { width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: #fff; outline: none; font-size: 13px; }
-        .form-group input:focus, .form-group select:focus { border-color: #10b981; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: #fff; outline: none; font-size: 13px; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #10b981; }
         
-        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
-        .btn-cancel { padding: 10px 20px; background: transparent; border: 1px solid #555; color: #ccc; border-radius: 8px; cursor: pointer; }
-        .btn-save { padding: 10px 20px; background: #10b981; border: none; color: white; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .upload-area { border: 2px dashed rgba(255, 255, 255, 0.2); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; background: rgba(0, 0, 0, 0.2); transition: 0.3s; margin-bottom: 15px;}
+        .upload-area:hover { border-color: #10b981; }
+        #previewItemImage { max-height: 100px; border-radius: 8px; display: none; margin: 10px auto 0; }
+
+        .btn-save { padding: 15px; background: linear-gradient(45deg, #10b981, #3b82f6); border: none; color: white; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; margin-top: 10px; font-size: 15px;}
 
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #1a1a2e; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <!-- MASTER SIDEBAR WITH ALL HREFS -->
+    <!-- MASTER SIDEBAR -->
     <aside class="sidebar">
         <div class="logo-section">
-            <h2>Local Boy</h2>
+            <h2>Local Boy Admin</h2>
         </div>
 
         <ul class="menu">
@@ -101,7 +98,7 @@
             </li>
 
             <li class="menu-item">
-                <button class="menu-btn active" style="border-left: 4px solid #10b981;">Groceries Management <i class="fas fa-chevron-down arrow"></i></button>
+                <button class="menu-btn active" style="border-left: 4px solid #10b981;">Groceries <i class="fas fa-chevron-down arrow"></i></button>
                 <ul class="submenu" style="max-height: 500px;">
                     <li><a href="admin_groceries.html" class="active-link" style="color: #10b981;">Inventory / Add Items</a></li>
                 </ul>
@@ -152,80 +149,61 @@
         </ul>
     </aside>
 
-    <!-- Main Content -->
     <main class="main-content">
         <div class="header">
             <h1>Groceries Inventory</h1>
-            <button class="add-btn" id="openModalBtn"><i class="fas fa-plus"></i> Add New Item</button>
+            <button class="add-btn" onclick="openItemModal()"><i class="fas fa-plus"></i> Add New Item</button>
         </div>
 
-        <div class="stats-row">
-            <div class="stat-card">
-                <h3>Total Items in Store</h3>
-                <p id="total-items">0</p>
-            </div>
-            <div class="stat-card">
-                <h3>Out of Stock</h3>
-                <p id="out-of-stock" style="color: #ff4c4c;">0</p>
-            </div>
-            <div class="stat-card">
-                <h3>Active Categories</h3>
-                <p id="active-cats" style="color: #10b981;">8</p>
-            </div>
+        <div class="filter-box">
+            <label style="color: #b3b3b3; font-size: 14px;">Filter Category:</label>
+            <select id="categoryFilter">
+                <option value="all">All Categories</option>
+                <option value="vegetables">Fresh Veggies</option>
+                <option value="fruits">Fresh Fruits</option>
+                <option value="dairy">Dairy & Milk</option>
+                <option value="meat">Meat & Fish</option>
+                <option value="snacks">Snacks</option>
+                <option value="drinks">Cold Drinks</option>
+                <option value="pharmacy">Pharmacy</option>
+                <option value="petcare">Pet Care</option>
+            </select>
         </div>
 
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Item</th>
-                        <th>Name</th>
-                        <th>Category</th>
-                        <th>Weight</th>
-                        <th>Pricing (₹)</th>
-                        <th>In Stock</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="groceriesTableBody">
-                    <tr><td colspan="7" style="text-align: center; color: #888;">Loading Inventory...</td></tr>
-                </tbody>
-            </table>
+        <div class="items-grid" id="groceryItemsGrid">
+            <p style="color: #888; grid-column: 1/-1; text-align: center;">Loading inventory...</p>
         </div>
     </main>
 
-    <!-- Add Grocery Modal -->
-    <div class="modal-overlay" id="addModal">
+    <!-- ITEM MODAL -->
+    <div class="modal-overlay" id="itemModal">
         <div class="modal-card">
-            <h2>Add Grocery Item</h2>
-            <form id="groceryForm">
-                
-                <div class="upload-area" id="uploadArea">
-                    <input type="file" id="itemFile" accept="image/*" hidden required>
-                    <div id="uploadPlaceholder">
-                        <i class="fas fa-cloud-upload-alt" style="font-size: 24px; color: #10b981; margin-bottom: 5px;"></i>
-                        <p style="color: #888; font-size: 12px;">Click to upload Item Image (Transparent PNG preferred)</p>
+            <i class="fas fa-xmark close-modal" onclick="closeModal()"></i>
+            <h2 id="modalTitle">Add Grocery Item</h2>
+            
+            <form id="itemForm">
+                <input type="hidden" id="editItemId">
+                <input type="hidden" id="existingImagePath">
+
+                <div class="upload-area" id="itemUploadArea">
+                    <input type="file" id="itemFile" accept="image/*" hidden>
+                    <div id="itemUploadPlaceholder">
+                        <i class="fas fa-camera" style="font-size: 24px; color: #10b981;"></i>
+                        <p style="font-size: 11px; color: #888; margin-top: 5px;">Upload Product Image</p>
                     </div>
-                    <img id="previewImage">
+                    <img id="previewItemImage">
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Item Name (English)</label>
-                        <input type="text" id="itemNameEn" placeholder="e.g., Fresh Tomatoes" required>
+                        <label>Item Name</label>
+                        <input type="text" id="itemName" placeholder="e.g., Tomato" required>
                     </div>
-                    <div class="form-group">
-                        <label>Item Name (Local/Display)</label>
-                        <input type="text" id="itemNameLocal" placeholder="e.g., టమోటాలు (Tomatoes)" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
                     <div class="form-group">
                         <label>Category</label>
                         <select id="itemCategory" required>
-                            <option value="vegetables">Vegetables</option>
-                            <option value="fruits">Fruits</option>
+                            <option value="vegetables">Fresh Veggies</option>
+                            <option value="fruits">Fresh Fruits</option>
                             <option value="dairy">Dairy & Milk</option>
                             <option value="meat">Meat & Fish</option>
                             <option value="snacks">Snacks</option>
@@ -234,231 +212,266 @@
                             <option value="petcare">Pet Care</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>Weight / Quantity Label</label>
-                        <input type="text" id="itemWeight" placeholder="e.g., 500g, 1 kg, 1 Dozen" required>
-                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label>Weight / Quantity Label</label>
+                    <input type="text" id="itemWeight" placeholder="e.g., 1 Kg, 500g, 1 Packet" required>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>MRP / Original Price (₹)</label>
-                        <input type="number" id="originalPrice" placeholder="e.g., 60" required oninput="calculateDiscount()">
+                        <label>Original Price (₹)</label>
+                        <input type="number" id="itemOriginalPrice" required oninput="calcDiscount()">
                     </div>
                     <div class="form-group">
                         <label>Selling Price (₹)</label>
-                        <input type="number" id="sellingPrice" placeholder="e.g., 45" required oninput="calculateDiscount()">
-                    </div>
-                    <div class="form-group">
-                        <label>Discount (%)</label>
-                        <input type="number" id="discountPercent" placeholder="Auto calculated" readonly style="background: rgba(0,0,0,0.5);">
+                        <input type="number" id="itemSellingPrice" required oninput="calcDiscount()">
                     </div>
                 </div>
-                
-                <div class="modal-actions">
-                    <button type="button" class="btn-cancel" id="closeModalBtn">Cancel</button>
-                    <button type="submit" class="btn-save" id="saveBtn">Save to App</button>
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label>Discount (%)</label>
+                    <input type="number" id="itemDiscount" readonly style="background: rgba(0,0,0,0.5);">
                 </div>
+
+                <button type="submit" class="btn-save" id="saveItemBtn">Save Item</button>
             </form>
         </div>
     </div>
 
-    <!-- Firebase Logic -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
-        import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
-        import { getStorage, ref as sRef, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-storage.js";
-
-        // ORIGINAL FIREBASE CONFIG
+    <script>
+        // EXACT CONFIG PROVIDED BY YOU
         const firebaseConfig = {
             apiKey: "AIzaSyAvjFcKKiu4OMmQckYXMTejdBJh9tC6TjM",
             authDomain: "sri-vishnu-priya-finance-c591f.firebaseapp.com",
             databaseURL: "https://sri-vishnu-priya-finance-c591f-default-rtdb.firebaseio.com",
             projectId: "sri-vishnu-priya-finance-c591f",
-            storageBucket: "sri-vishnu-priya-finance-c591f.firebasestorage.app",
+            storageBucket: "sri-vishnu-priya-finance-c591f.appspot.com", // Fixed bucket
             messagingSenderId: "184676228358",
             appId: "1:184676228358:web:c2b32b68debeeadadfd287",
             measurementId: "G-E3TT96ZH1T"
         };
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const database = firebase.database();
+        const storage = firebase.storage();
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
-        const storage = getStorage(app);
-
-        // Security check
-        onAuthStateChanged(auth, (user) => {
-            if (!user) window.location.href = "index.html";
-        });
-
-        // Sidebar logic
-        const menuBtns = document.querySelectorAll('.menu-btn');
-        menuBtns.forEach(btn => {
+        // Sidebar dropdowns
+        document.querySelectorAll('.menu-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const submenu = this.nextElementSibling;
                 if(submenu && submenu.classList.contains('submenu')) {
                     this.classList.toggle('active');
-                    if (submenu.style.maxHeight) {
-                        submenu.style.maxHeight = null;
-                    } else {
-                        submenu.style.maxHeight = submenu.scrollHeight + "px";
-                    }
+                    submenu.style.maxHeight = submenu.style.maxHeight ? null : submenu.scrollHeight + "px";
                 }
             });
         });
 
-        // Discount Calculator
-        window.calculateDiscount = function() {
-            let op = parseFloat(document.getElementById('originalPrice').value) || 0;
-            let sp = parseFloat(document.getElementById('sellingPrice').value) || 0;
-            let discInput = document.getElementById('discountPercent');
+        // --- MODAL LOGIC ---
+        const itemModal = document.getElementById('itemModal');
+        let selectedFile = null;
+
+        window.closeModal = function() { itemModal.classList.remove('active'); }
+        
+        window.openItemModal = function() {
+            document.getElementById('itemForm').reset();
+            document.getElementById('editItemId').value = "";
+            document.getElementById('existingImagePath').value = "";
+            document.getElementById('modalTitle').innerText = "Add Grocery Item";
             
-            if(op > 0 && sp > 0 && op >= sp) {
-                let disc = Math.round(((op - sp) / op) * 100);
-                discInput.value = disc;
-            } else {
-                discInput.value = 0;
-            }
+            selectedFile = null;
+            document.getElementById('previewItemImage').style.display = 'none';
+            document.getElementById('itemUploadPlaceholder').style.display = 'block';
+            
+            itemModal.classList.add('active');
         }
 
-        // Modal & Image
-        const modal = document.getElementById('addModal');
-        document.getElementById('openModalBtn').addEventListener('click', () => modal.classList.add('active'));
-        document.getElementById('closeModalBtn').addEventListener('click', resetModal);
-        
-        let selectedFile = null;
-        const uploadArea = document.getElementById('uploadArea');
-        const itemFile = document.getElementById('itemFile');
-        const previewImage = document.getElementById('previewImage');
-        const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+        window.calcDiscount = function() {
+            let op = parseFloat(document.getElementById('itemOriginalPrice').value) || 0;
+            let sp = parseFloat(document.getElementById('itemSellingPrice').value) || 0;
+            let discInput = document.getElementById('itemDiscount');
+            if(op > 0 && sp > 0 && op >= sp) {
+                discInput.value = Math.round(((op - sp) / op) * 100);
+            } else { discInput.value = 0; }
+        }
 
-        uploadArea.addEventListener('click', () => itemFile.click());
-        itemFile.addEventListener('change', (e) => {
+        // Image Upload Area Handle
+        document.getElementById('itemUploadArea').addEventListener('click', () => document.getElementById('itemFile').click());
+        document.getElementById('itemFile').addEventListener('change', (e) => {
             selectedFile = e.target.files[0];
             if(selectedFile) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    previewImage.src = e.target.result;
-                    previewImage.style.display = 'block';
-                    uploadPlaceholder.style.display = 'none';
+                    document.getElementById('previewItemImage').src = e.target.result;
+                    document.getElementById('previewItemImage').style.display = 'block';
+                    document.getElementById('itemUploadPlaceholder').style.display = 'none';
                 }
                 reader.readAsDataURL(selectedFile);
             }
         });
 
-        function resetModal() {
-            modal.classList.remove('active');
-            document.getElementById('groceryForm').reset();
-            selectedFile = null;
-            previewImage.style.display = 'none';
-            uploadPlaceholder.style.display = 'block';
+        // --- SAVE OR UPDATE ITEM ---
+        document.getElementById('itemForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const editId = document.getElementById('editItemId').value;
+            const existingPath = document.getElementById('existingImagePath').value;
+            
+            const btn = document.getElementById('saveItemBtn');
+            btn.innerText = "Connecting to Firebase..."; btn.disabled = true;
+
+            const itemData = {
+                name: document.getElementById('itemName').value,
+                en: document.getElementById('itemName').value, // For backward compatibility with customer app
+                category: document.getElementById('itemCategory').value,
+                type: 'grocery',
+                weight: document.getElementById('itemWeight').value,
+                originalPrice: parseFloat(document.getElementById('itemOriginalPrice').value),
+                price: parseFloat(document.getElementById('itemSellingPrice').value),
+                discount: parseInt(document.getElementById('itemDiscount').value) || 0
+            };
+
+            if(selectedFile) {
+                const fileName = `groceries/${Date.now()}_${selectedFile.name}`;
+                const storageRef = storage.ref().child(fileName);
+                const uploadTask = storageRef.put(selectedFile);
+                
+                uploadTask.on('state_changed', 
+                    (snapshot) => {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        btn.innerText = `Uploading Image... ${Math.round(progress)}%`;
+                    }, 
+                    (error) => {
+                        alert("Image Upload Failed! " + error.message);
+                        btn.innerText = editId ? "Update Item" : "Save Item"; 
+                        btn.disabled = false;
+                    }, 
+                    () => {
+                        uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                            itemData.image = downloadURL;
+                            itemData.storage_path = fileName;
+                            
+                            if(editId) {
+                                database.ref(`groceries/${editId}`).update(itemData).then(() => { btn.disabled = false; closeModal(); });
+                            } else {
+                                database.ref('groceries').push(itemData).then(() => { btn.disabled = false; closeModal(); });
+                            }
+                        });
+                    }
+                );
+            } else {
+                if(editId) {
+                    itemData.image = document.getElementById('previewItemImage').src || "";
+                    itemData.storage_path = existingPath;
+                    database.ref(`groceries/${editId}`).update(itemData).then(() => { btn.disabled = false; closeModal(); });
+                } else {
+                    itemData.image = ""; 
+                    database.ref('groceries').push(itemData).then(() => { btn.disabled = false; closeModal(); });
+                }
+            }
+        });
+
+        // --- FETCH AND DISPLAY INVENTORY ---
+        const grid = document.getElementById('groceryItemsGrid');
+        const filterSelect = document.getElementById('categoryFilter');
+        let allItemsData = {};
+
+        function fetchGroceries() {
+            database.ref('groceries').on('value', (snapshot) => {
+                allItemsData = {};
+                if(snapshot.exists()) {
+                    snapshot.forEach((child) => {
+                        allItemsData[child.key] = child.val();
+                    });
+                    renderItems();
+                } else {
+                    grid.innerHTML = '<p style="color: #888; grid-column: 1/-1; text-align: center;">No items found in inventory.</p>';
+                }
+            });
         }
 
-        // Save Item to Firebase
-        const groceriesRef = ref(db, 'groceries');
+        function renderItems() {
+            grid.innerHTML = '';
+            const filterVal = filterSelect.value;
+            let count = 0;
 
-        document.getElementById('groceryForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            if(!selectedFile) { alert("Please upload an image!"); return; }
+            for(let key in allItemsData) {
+                const data = allItemsData[key];
+                
+                if(filterVal !== 'all' && data.category !== filterVal) continue;
+                count++;
 
-            const btn = document.getElementById('saveBtn');
-            btn.innerText = "Uploading...";
-            btn.disabled = true;
+                const imgSrc = data.image || 'https://cdn-icons-png.flaticon.com/512/3194/3194591.png';
+                const discTag = data.discount > 0 ? `<span class="discount-tag">${data.discount}% OFF</span>` : '';
+                const itemName = data.name || data.en;
 
-            const fileName = `groceries/${Date.now()}_${selectedFile.name}`;
-            const storageRef = sRef(storage, fileName);
-            const uploadTask = uploadBytesResumable(storageRef, selectedFile);
-
-            uploadTask.on('state_changed', null, 
-                (error) => { alert("Upload failed!"); btn.innerText = "Save to App"; btn.disabled = false; }, 
-                () => {
-                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                        const newItem = {
-                            en: document.getElementById('itemNameEn').value,
-                            name: document.getElementById('itemNameLocal').value,
-                            category: document.getElementById('itemCategory').value,
-                            weight: document.getElementById('itemWeight').value,
-                            originalPrice: parseFloat(document.getElementById('originalPrice').value),
-                            price: parseFloat(document.getElementById('sellingPrice').value),
-                            discount: parseInt(document.getElementById('discountPercent').value) || 0,
-                            image: downloadURL,
-                            storage_path: fileName,
-                            in_stock: true
-                        };
-                        push(groceriesRef, newItem).then(() => {
-                            btn.innerText = "Save to App";
-                            btn.disabled = false;
-                            resetModal();
-                        });
-                    });
-                }
-            );
-        });
-
-        // Load Items from Firebase
-        const tbody = document.getElementById('groceriesTableBody');
-        onValue(groceriesRef, (snapshot) => {
-            tbody.innerHTML = '';
-            let total = 0; let outOfStock = 0;
-
-            if(snapshot.exists()) {
-                snapshot.forEach((child) => {
-                    total++;
-                    const key = child.key;
-                    const data = child.val();
-                    const isStock = data.in_stock !== false; 
-                    if(!isStock) outOfStock++;
-
-                    let discHtml = data.discount > 0 ? `<span class="discount-badge">${data.discount}% OFF</span>` : '';
-                    
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td><img src="${data.image}" class="item-img"></td>
-                        <td>
-                            <strong style="color:#fff;">${data.name}</strong><br>
-                            <span style="font-size:11px; color:#888;">${data.en}</span>
-                        </td>
-                        <td style="text-transform: capitalize; color: #10b981;">${data.category}</td>
-                        <td style="color: #3b82f6; font-weight: 600;">${data.weight}</td>
-                        <td>
-                            ₹${data.price} <strike style="color:#888; font-size:11px; margin-left:5px;">₹${data.originalPrice}</strike>
-                            ${discHtml}
-                        </td>
-                        <td>
-                            <label class="switch">
-                                <input type="checkbox" class="toggle-stock" data-key="${key}" ${isStock ? 'checked' : ''}>
-                                <span class="slider"></span>
-                            </label>
-                        </td>
-                        <td>
-                            <i class="fas fa-trash action-icon delete-btn" data-key="${key}" data-path="${data.storage_path}"></i>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            } else {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #888;">No items in inventory.</td></tr>';
+                grid.innerHTML += `
+                    <div class="item-card">
+                        <img src="${imgSrc}" class="item-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3194/3194591.png'">
+                        <div class="item-info">
+                            <h4>${itemName}</h4>
+                            <p>${data.weight} • ${data.category}</p>
+                            <div class="price-tag">₹${data.price} <strike style="font-size:11px; color:#888;">₹${data.originalPrice}</strike> ${discTag}</div>
+                        </div>
+                        <div class="item-actions">
+                            <i class="fas fa-pen action-icon edit edit-btn" data-key="${key}" title="Edit Item"></i>
+                            <i class="fas fa-trash action-icon delete del-btn" data-key="${key}" data-path="${data.storage_path || ''}" title="Delete Item"></i>
+                        </div>
+                    </div>
+                `;
             }
 
-            document.getElementById('total-items').innerText = total;
-            document.getElementById('out-of-stock').innerText = outOfStock;
-        });
+            if(count === 0) {
+                grid.innerHTML = '<p style="color: #888; grid-column: 1/-1; text-align: center;">No items match this category.</p>';
+            }
+        }
 
-        // Toggle Stock & Delete
-        tbody.addEventListener('click', (e) => {
-            if(e.target.classList.contains('delete-btn')) {
+        filterSelect.addEventListener('change', renderItems);
+        fetchGroceries();
+
+        // --- EDIT & DELETE ---
+        grid.addEventListener('click', (e) => {
+            if(e.target.classList.contains('edit-btn')) {
+                const key = e.target.getAttribute('data-key');
+                const data = allItemsData[key];
+                
+                document.getElementById('modalTitle').innerText = "Edit Grocery Item";
+                document.getElementById('editItemId').value = key;
+                document.getElementById('existingImagePath').value = data.storage_path || "";
+                
+                document.getElementById('itemName').value = data.name || data.en;
+                document.getElementById('itemCategory').value = data.category || "vegetables";
+                document.getElementById('itemWeight').value = data.weight || "";
+                document.getElementById('itemOriginalPrice').value = data.originalPrice;
+                document.getElementById('itemSellingPrice').value = data.price;
+                document.getElementById('itemDiscount').value = data.discount || 0;
+
+                if(data.image) {
+                    document.getElementById('previewItemImage').src = data.image;
+                    document.getElementById('previewItemImage').style.display = 'block';
+                    document.getElementById('itemUploadPlaceholder').style.display = 'none';
+                } else {
+                    document.getElementById('previewItemImage').style.display = 'none';
+                    document.getElementById('itemUploadPlaceholder').style.display = 'block';
+                }
+
+                document.getElementById('saveItemBtn').innerText = "Update Item";
+                itemModal.classList.add('active');
+            }
+
+            if(e.target.classList.contains('del-btn')) {
                 const key = e.target.getAttribute('data-key');
                 const path = e.target.getAttribute('data-path');
-                if(confirm("Delete this item permanently?")) {
-                    remove(ref(db, `groceries/${key}`)).then(() => {
-                        if(path) deleteObject(sRef(storage, path));
+                if(confirm("Delete this grocery item completely?")) {
+                    database.ref(`groceries/${key}`).remove().then(() => {
+                        if(path) {
+                            storage.ref().child(path).delete().catch(err=>console.log(err));
+                        }
                     });
                 }
-            }
-            if(e.target.classList.contains('toggle-stock')) {
-                const key = e.target.getAttribute('data-key');
-                update(ref(db, `groceries/${key}`), { in_stock: e.target.checked });
             }
         });
     </script>
