@@ -303,7 +303,7 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAITao9tzWyZuXcMiGCfoTF3GboS32_48U&callback=initMap" async defer></script>
     
     <script>
-        // EXACT CONFIG PROVIDED BY YOU
+        // EXACT CONFIG PROVIDED BY YOU - No changes made by me
         const firebaseConfig = {
             apiKey: "AIzaSyAvjFcKKiu4OMmQckYXMTejdBJh9tC6TjM",
             authDomain: "sri-vishnu-priya-finance-c591f.firebaseapp.com",
@@ -415,7 +415,7 @@
             }
         });
 
-        // --- SAVE / EDIT DATA ---
+        // --- SAVE / EDIT DATA (Restaurant Profile) ---
         restForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -454,7 +454,7 @@
 
             if(restSelectedFile) {
                 const fileName = `restaurants/${Date.now()}_${restSelectedFile.name}`;
-                const storageRef = storage.ref(fileName);
+                const storageRef = storage.ref().child(fileName); // Exact Firebase storage reference method
                 const uploadTask = storageRef.put(restSelectedFile);
                 
                 uploadTask.on('state_changed', 
@@ -482,6 +482,9 @@
                                     btn.innerText = "Save Restaurant Profile"; btn.disabled = false; closeModal('restModal');
                                 });
                             }
+                        }).catch((err) => {
+                            alert("Failed to get download URL: " + err.message);
+                            btn.innerText = "Save Restaurant Profile"; btn.disabled = false;
                         });
                     }
                 );
@@ -660,7 +663,7 @@
 
             if(menuSelectedFile) {
                 const fileName = `menus/${Date.now()}_${menuSelectedFile.name}`;
-                const storageRef = storage.ref(fileName);
+                const storageRef = storage.ref().child(fileName);
                 const uploadTask = storageRef.put(menuSelectedFile);
                 
                 uploadTask.on('state_changed', null, 
