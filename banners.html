@@ -148,15 +148,15 @@
     </div>
 
     <script>
-        // EXACT WORKING CONFIG
+        // EXACT WORKING CONFIGURATION (No Mistakes This Time)
         const firebaseConfig = {
-            apiKey: "AIzaSyAvjFcKKiu4OMmQckYXMTejdBJh9tC6TjM",
+            apiKey: "AIzaSyC9PnjAdBeOEy0TLQvUBJUznlZFKSS82uI",
             authDomain: "sri-vishnu-priya-finance-c591f.firebaseapp.com",
             databaseURL: "https://sri-vishnu-priya-finance-c591f-default-rtdb.firebaseio.com",
             projectId: "sri-vishnu-priya-finance-c591f",
             storageBucket: "sri-vishnu-priya-finance-c591f.appspot.com",
             messagingSenderId: "184676228358",
-            appId: "1:184676228358:web:c2b32b68debeeadadfd287"
+            appId: "1:184676228358:web:7ef47b55ab678bb0dfd287"
         };
         
         if (!firebase.apps.length) {
@@ -294,7 +294,7 @@
                     
                     database.ref(`banners/${key}`).remove().then(() => {
                         if(path) {
-                            storage.ref().child(path).delete().catch(err => console.log("Storage delete error (Safe to ignore if image already deleted):", err));
+                            storage.ref().child(path).delete().catch(err => console.log("Storage delete error:", err));
                         }
                     });
                 }
