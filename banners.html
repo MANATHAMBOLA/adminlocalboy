@@ -148,13 +148,13 @@
     </div>
 
     <script>
-        // THE EXACT CONFIGURATION THAT SUCCESSFULLY UPLOADED RESTAURANT IMAGES
+        // EXACT WORKING FIREBASE CONFIG (Copied from your working code)
         const firebaseConfig = {
-            apiKey: "AIzaSyAvjFcKKiu4OMmQckYXMTejdBJh9tC6TjM",
+            apiKey: "AIzaSyC9PnjAdBeOEy0TLQvUBJUznlZFKSS82uI",
             authDomain: "sri-vishnu-priya-finance-c591f.firebaseapp.com",
             databaseURL: "https://sri-vishnu-priya-finance-c591f-default-rtdb.firebaseio.com",
             projectId: "sri-vishnu-priya-finance-c591f",
-            storageBucket: "sri-vishnu-priya-finance-c591f.appspot.com",
+            storageBucket: "sri-vishnu-priya-finance-c591f.firebasestorage.app",
             messagingSenderId: "184676228358",
             appId: "1:184676228358:web:c2b32b68debeeadadfd287",
             measurementId: "G-E3TT96ZH1T"
@@ -209,14 +209,14 @@
             }
         });
 
-        // --- UPLOAD TO FIREBASE ---
+        // --- UPLOAD TO FIREBASE (Exact working method) ---
         document.getElementById('bannerForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             if(!selectedFile) { alert("Please select an image first."); return; }
 
             const btn = document.getElementById('uploadBtn');
-            btn.innerText = "Uploading... Please wait"; 
+            btn.innerText = "Connecting to Firebase..."; 
             btn.disabled = true;
 
             const fileName = `banners/${Date.now()}_${selectedFile.name}`;
@@ -229,7 +229,8 @@
                     btn.innerText = `Uploading... ${Math.round(progress)}%`;
                 }, 
                 (error) => {
-                    alert("Upload Failed! " + error.message);
+                    alert("Upload Failed! Error details: " + error.message);
+                    console.error("Upload Error:", error);
                     btn.innerText = "Upload to App"; 
                     btn.disabled = false;
                 }, 
@@ -295,7 +296,7 @@
                     
                     database.ref(`banners/${key}`).remove().then(() => {
                         if(path) {
-                            storage.ref().child(path).delete().catch(err => console.log("Storage delete error:", err));
+                            storage.ref().child(path).delete().catch(err => console.log("Storage delete error (Safe to ignore if image already deleted):", err));
                         }
                     });
                 }
