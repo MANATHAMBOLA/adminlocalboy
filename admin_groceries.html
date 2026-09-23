@@ -241,15 +241,16 @@
     </div>
 
     <script>
-        // THE EXACT CONFIG THAT IS WORKING FOR ADD RESTAURANT
+        // EXACT CONFIG THAT WORKED IN add_restaurant.html
         const firebaseConfig = {
-            apiKey: "AIzaSyC9PnjAdBeOEy0TLQvUBJUznlZFKSS82uI",
+            apiKey: "AIzaSyAvjFcKKiu4OMmQckYXMTejdBJh9tC6TjM",
             authDomain: "sri-vishnu-priya-finance-c591f.firebaseapp.com",
             databaseURL: "https://sri-vishnu-priya-finance-c591f-default-rtdb.firebaseio.com",
             projectId: "sri-vishnu-priya-finance-c591f",
-            storageBucket: "sri-vishnu-priya-finance-c591f.appspot.com",
+            storageBucket: "sri-vishnu-priya-finance-c591f.firebasestorage.app",
             messagingSenderId: "184676228358",
-            appId: "1:184676228358:web:7ef47b55ab678bb0dfd287"
+            appId: "1:184676228358:web:c2b32b68debeeadadfd287",
+            measurementId: "G-E3TT96ZH1T"
         };
         
         if (!firebase.apps.length) {
@@ -320,7 +321,8 @@
             const existingPath = document.getElementById('existingImagePath').value;
             
             const btn = document.getElementById('saveItemBtn');
-            btn.innerText = "Connecting to Firebase..."; btn.disabled = true;
+            btn.innerText = "Connecting to Firebase..."; 
+            btn.disabled = true;
 
             const itemData = {
                 name: document.getElementById('itemName').value,
@@ -344,7 +346,8 @@
                         btn.innerText = `Uploading Image... ${Math.round(progress)}%`;
                     }, 
                     (error) => {
-                        alert("Image Upload Failed! " + error.message);
+                        alert("Image Upload Failed! Reason: " + error.message);
+                        console.error("Upload error:", error);
                         btn.innerText = editId ? "Update Item" : "Save Item"; 
                         btn.disabled = false;
                     }, 
@@ -354,10 +357,22 @@
                             itemData.storage_path = fileName;
                             
                             if(editId) {
-                                database.ref(`groceries/${editId}`).update(itemData).then(() => { btn.disabled = false; closeModal(); });
+                                database.ref(`groceries/${editId}`).update(itemData).then(() => { 
+                                    btn.innerText = "Save Item";
+                                    btn.disabled = false; 
+                                    closeModal(); 
+                                });
                             } else {
-                                database.ref('groceries').push(itemData).then(() => { btn.disabled = false; closeModal(); });
+                                database.ref('groceries').push(itemData).then(() => { 
+                                    btn.innerText = "Save Item";
+                                    btn.disabled = false; 
+                                    closeModal(); 
+                                });
                             }
+                        }).catch((err) => {
+                            alert("Failed to get download URL: " + err.message);
+                            btn.innerText = editId ? "Update Item" : "Save Item";
+                            btn.disabled = false;
                         });
                     }
                 );
@@ -365,10 +380,18 @@
                 if(editId) {
                     itemData.image = document.getElementById('previewItemImage').src || "";
                     itemData.storage_path = existingPath;
-                    database.ref(`groceries/${editId}`).update(itemData).then(() => { btn.disabled = false; closeModal(); });
+                    database.ref(`groceries/${editId}`).update(itemData).then(() => { 
+                        btn.innerText = "Save Item";
+                        btn.disabled = false; 
+                        closeModal(); 
+                    });
                 } else {
                     itemData.image = ""; 
-                    database.ref('groceries').push(itemData).then(() => { btn.disabled = false; closeModal(); });
+                    database.ref('groceries').push(itemData).then(() => { 
+                        btn.innerText = "Save Item";
+                        btn.disabled = false; 
+                        closeModal(); 
+                    });
                 }
             }
         });
