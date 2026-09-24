@@ -251,6 +251,37 @@
             }
         });
 
+        // --- ONESIGNAL NOTIFICATION FUNCTION (Screenshot Keys Added) ---
+        function sendPushNotification() {
+            const restApiKey = "Basic os_v2_app_h44bswfnhjhwt15cppoo2uegpv2jqcrawszezgvijcoq4wxfbtflsb2u56mprp5maxtxquvgqq5cjyyf4h26ox6flhgfpykejxtdg7a"; 
+            const appId = "3f381958-ad3a-4f69-afa2-7bdced51c67d"; 
+
+            const headers = {
+                "Content-Type": "application/json; charset=utf-8",
+                "Authorization": restApiKey
+            };
+
+            const data = {
+                app_id: appId,
+                included_segments: ["Subscribed Users"],
+                headings: { "en": "Exciting Offers Inside! 🎉" },
+                contents: { "en": "Check out our new banners and grab the best deals today!" }
+            };
+
+            fetch("https://onesignal.com/api/v1/notifications", {
+                method: "POST",
+                headers: headers,
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log("Notification Sent:", result);
+            })
+            .catch(error => {
+                console.error("Error sending notification:", error);
+            });
+        }
+
         // --- UPLOAD TO FIREBASE WITH COMPRESSION ---
         document.getElementById('bannerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -289,6 +320,10 @@
                             closeModal();
                             btn.innerText = "Upload to App"; 
                             btn.disabled = false;
+                            
+                            // బ్యానర్ సక్సెస్ ఫుల్ గా అప్‌లోడ్ అయ్యాక నోటిఫికేషన్ పంపుతుంది
+                            sendPushNotification();
+                            alert("Banner uploaded and notification sent to customers!");
                         });
                     }).catch((err) => {
                         alert("Error saving URL: " + err.message);
