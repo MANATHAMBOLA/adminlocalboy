@@ -234,13 +234,13 @@
         </div>
     </div>
 
-    <!-- Firebase Logic -->
+    <!-- Firebase & OneSignal Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
         import { getDatabase, ref, push, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
 
-        // ORIGINAL FIREBASE CONFIG
+        // NEW FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyAvjFcKKiu4OMmQckYXMTejdBJh9tC6TjM",
             authDomain: "sri-vishnu-priya-finance-c591f.firebaseapp.com",
@@ -248,7 +248,8 @@
             projectId: "sri-vishnu-priya-finance-c591f",
             storageBucket: "sri-vishnu-priya-finance-c591f.firebasestorage.app",
             messagingSenderId: "184676228358",
-            appId: "1:184676228358:web:c2b32b68debeeadadfd287"
+            appId: "1:184676228358:web:c2b32b68debeeadadfd287",
+            measurementId: "G-E3TT96ZH1T"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -286,6 +287,33 @@
 
         const promocodesRef = ref(db, 'promocodes');
 
+        // --- NEW: ONESIGNAL NOTIFICATION FUNCTION ---
+        function sendPushNotification(promoName, discountText) {
+            const restApiKey = "Basic os_v2_app_h44bswfnhjhwt15cppoo2uegpv2jqcrawszezgvijcoq4wxfbtflsb2u56mprp5maxtxquvgqq5cjyyf4h26ox6flhgfpykejxtdg7a"; 
+            const appId = "3f381958-ad3a-4f69-afa2-7bdced51c67d"; 
+
+            const headers = {
+                "Content-Type": "application/json; charset=utf-8",
+                "Authorization": restApiKey
+            };
+
+            const data = {
+                app_id: appId,
+                included_segments: ["Subscribed Users"],
+                headings: { "en": "New Promocode Alert! 🎁" },
+                contents: { "en": `Use code ${promoName} and get ${discountText}! Open the app to order now.` }
+            };
+
+            fetch("https://onesignal.com/api/v1/notifications", {
+                method: "POST",
+                headers: headers,
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => console.log("Notification Sent:", result))
+            .catch(error => console.error("Error sending notification:", error));
+        }
+
         // 1. CREATE: Save New Promocode
         promoForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -307,6 +335,16 @@
                 btn.innerText = "Save Promocode";
                 modal.classList.remove('active');
                 promoForm.reset();
+
+                // కస్టమర్లకి వెళ్లే మెసేజ్ లో డిస్కౌంట్ టెక్స్ట్ ప్రిపేర్ చేయడం
+                let discountTextMsg = newPromo.discount_type === 'percentage' 
+                    ? `${newPromo.discount_value}% OFF` 
+                    : `₹${newPromo.discount_value} Flat OFF`;
+
+                // ప్రొమో కోడ్ సేవ్ అయ్యాక నోటిఫికేషన్ పంపుతుంది
+                sendPushNotification(newPromo.code_name, discountTextMsg);
+                alert("Promocode saved and notification sent to customers!");
+                
             }).catch(error => {
                 alert("Error saving: " + error.message);
                 btn.innerText = "Save Promocode";
