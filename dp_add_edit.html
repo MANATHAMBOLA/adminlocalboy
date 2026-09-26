@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Local Boy Admin - Delivery Partners Management</title>
+    <title>Local Boy Admin - Delivery Partners (Instant Save v2)</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase COMPAT Web SDKs (Direct & Fast Database Sync) -->
+    <!-- Firebase COMPAT Web SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 
@@ -32,7 +32,8 @@
         /* Main Content */
         .main-content { flex: 1; padding: 30px; overflow-y: auto; background: radial-gradient(circle at top right, #1a1a2e, #121212); position: relative; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .header h1 { font-size: 26px; font-weight: 500; }
+        .header h1 { font-size: 24px; font-weight: 500; display: flex; align-items: center; gap: 10px; }
+        .v2-tag { font-size: 11px; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 3px 10px; border-radius: 20px; }
         .add-btn { padding: 12px 24px; background: linear-gradient(45deg, #ff8a00, #e52e71); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer; box-shadow: 0 8px 20px rgba(229, 46, 113, 0.3); transition: 0.3s; }
         .add-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(229, 46, 113, 0.5); }
 
@@ -156,7 +157,7 @@
 
     <main class="main-content">
         <div class="header">
-            <h1>Delivery Partners Management</h1>
+            <h1>Delivery Partners <span class="v2-tag">⚡ Instant Save v2</span></h1>
             <button class="add-btn" onclick="openAddModal()"><i class="fas fa-motorcycle"></i> Add New Partner</button>
         </div>
 
@@ -229,10 +230,11 @@
 
     <script>
         // EXACT FIREBASE CONFIGURATION
+        const DB_URL = "https://sri-vishnu-priya-finance-c591f-default-rtdb.firebaseio.com";
         const firebaseConfig = {
             apiKey: "AIzaSyAvjFcKKiu4OMmQckYXMTejdBJh9tC6TjM",
             authDomain: "sri-vishnu-priya-finance-c591f.firebaseapp.com",
-            databaseURL: "https://sri-vishnu-priya-finance-c591f-default-rtdb.firebaseio.com",
+            databaseURL: DB_URL,
             projectId: "sri-vishnu-priya-finance-c591f",
             storageBucket: "sri-vishnu-priya-finance-c591f.firebasestorage.app",
             messagingSenderId: "184676228358",
@@ -256,7 +258,7 @@
             });
         });
 
-        // --- INSTANT PHOTO COMPRESSION (NO STORAGE BUCKET NEEDED) ---
+        // Instant Base64 Photo Compression (No Storage Needed)
         function compressPhotoInstant(file) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
@@ -264,7 +266,7 @@
                     const img = new Image();
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
-                        const maxSize = 220;
+                        const maxSize = 180;
                         let w = img.width;
                         let h = img.height;
                         if (w > h) {
@@ -276,7 +278,7 @@
                         canvas.height = h;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, w, h);
-                        resolve(canvas.toDataURL('image/jpeg', 0.65));
+                        resolve(canvas.toDataURL('image/jpeg', 0.6));
                     };
                     img.onerror = () => resolve("https://cdn-icons-png.flaticon.com/512/2972/2972185.png");
                     img.src = event.target.result;
@@ -317,13 +319,13 @@
             }
         });
 
-        // --- SAVE / UPDATE PARTNER DIRECTLY TO REALTIME DB ---
-        dpForm.addEventListener('submit', function(e) {
+        // --- GUARANTEED SAVE (SDK + REST API FALLBACK) ---
+        dpForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const editId = document.getElementById('editDpId').value;
             const btn = document.getElementById('saveDpBtn');
-            btn.innerText = "Saving Now...";
+            btn.innerText = "Saving Partner...";
             btn.disabled = true;
 
             const dpData = {
@@ -357,19 +359,32 @@
                 dpData.image = "https://cdn-icons-png.flaticon.com/512/2972/2972185.png";
             }
 
-            const dbPromise = editId 
-                ? database.ref('delivery_partners/' + editId).update(dpData)
-                : database.ref('delivery_partners').push(dpData);
+            try {
+                // Direct HTTP REST write guarantees no WebSocket hang
+                const endpoint = editId 
+                    ? `${DB_URL}/delivery_partners/${editId}.json`
+                    : `${DB_URL}/delivery_partners.json`;
+                const method = editId ? 'PATCH' : 'POST';
 
-            dbPromise.then(() => {
+                const res = await fetch(endpoint, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dpData)
+                });
+
+                if(!res.ok) {
+                    const errText = await res.text();
+                    throw new Error(errText || "Database permission denied");
+                }
+
                 btn.innerText = "Save Delivery Partner";
                 btn.disabled = false;
                 closeModal();
-            }).catch((err) => {
-                alert("Database Error: " + err.message);
+            } catch (err) {
+                alert("Could not save partner: " + err.message);
                 btn.innerText = "Save Delivery Partner";
                 btn.disabled = false;
-            });
+            }
         });
 
         // --- FETCH & DISPLAY PARTNERS ---
