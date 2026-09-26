@@ -6,6 +6,10 @@
     <title>Local Boy Admin - Delivery Partners Management</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase COMPAT Web SDKs (Direct & Fast Database Sync) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
@@ -223,12 +227,7 @@
         </div>
     </div>
 
-    <!-- FIREBASE v10 MODULAR SDK (Matches Admin Session) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
-        import { getDatabase, ref, onValue, push, update, remove } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
-
+    <script>
         // EXACT FIREBASE CONFIGURATION
         const firebaseConfig = {
             apiKey: "AIzaSyAvjFcKKiu4OMmQckYXMTejdBJh9tC6TjM",
@@ -240,14 +239,11 @@
             appId: "1:184676228358:web:c2b32b68debeeadadfd287",
             measurementId: "G-E3TT96ZH1T"
         };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
-
-        onAuthStateChanged(auth, (user) => {
-            if (!user) window.location.href = "index.html";
-        });
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const database = firebase.database();
 
         // Sidebar dropdowns
         document.querySelectorAll('.menu-btn').forEach(btn => {
@@ -260,48 +256,39 @@
             });
         });
 
-        // --- INSTANT IMAGE COMPRESSION TO DATA URL (No Storage Hang/Rule Block) ---
-        function compressImageToBase64(file, maxWidth = 300, maxHeight = 300, quality = 0.7) {
-            return new Promise((resolve, reject) => {
+        // --- INSTANT PHOTO COMPRESSION (NO STORAGE BUCKET NEEDED) ---
+        function compressPhotoInstant(file) {
+            return new Promise((resolve) => {
                 const reader = new FileReader();
-                reader.readAsDataURL(file);
                 reader.onload = (event) => {
                     const img = new Image();
-                    img.src = event.target.result;
                     img.onload = () => {
-                        let width = img.width;
-                        let height = img.height;
-
-                        if (width > height) {
-                            if (width > maxWidth) {
-                                height = Math.round((height * maxWidth) / width);
-                                width = maxWidth;
-                            }
-                        } else {
-                            if (height > maxHeight) {
-                                width = Math.round((height * maxHeight) / height);
-                                height = maxHeight;
-                            }
-                        }
-
                         const canvas = document.createElement('canvas');
-                        canvas.width = width;
-                        canvas.height = height;
+                        const maxSize = 220;
+                        let w = img.width;
+                        let h = img.height;
+                        if (w > h) {
+                            if (w > maxSize) { h = Math.round(h * maxSize / w); w = maxSize; }
+                        } else {
+                            if (h > maxSize) { w = Math.round(w * maxSize / h); h = maxSize; }
+                        }
+                        canvas.width = w;
+                        canvas.height = h;
                         const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
-
-                        resolve(canvas.toDataURL('image/jpeg', quality));
+                        ctx.drawImage(img, 0, 0, w, h);
+                        resolve(canvas.toDataURL('image/jpeg', 0.65));
                     };
-                    img.onerror = (err) => reject(err);
+                    img.onerror = () => resolve("https://cdn-icons-png.flaticon.com/512/2972/2972185.png");
+                    img.src = event.target.result;
                 };
-                reader.onerror = (err) => reject(err);
+                reader.onerror = () => resolve("https://cdn-icons-png.flaticon.com/512/2972/2972185.png");
+                reader.readAsDataURL(file);
             });
         }
 
-        // --- MODAL & UPLOAD LOGIC ---
         const dpModal = document.getElementById('dpModal');
         const dpForm = document.getElementById('dpForm');
-        let dpSelectedFile = null;
+        let compressedBase64Image = null;
 
         window.closeModal = function() { dpModal.classList.remove('active'); };
 
@@ -312,7 +299,7 @@
             document.getElementById('saveDpBtn').innerText = "Save Delivery Partner";
             document.getElementById('saveDpBtn').disabled = false;
             
-            dpSelectedFile = null;
+            compressedBase64Image = null;
             document.getElementById('previewDpImage').style.display = 'none';
             document.getElementById('dpUploadPlaceholder').style.display = 'block';
             
@@ -320,82 +307,76 @@
         };
 
         document.getElementById('dpUploadArea').addEventListener('click', () => document.getElementById('dpFile').click());
-        document.getElementById('dpFile').addEventListener('change', (e) => {
-            dpSelectedFile = e.target.files[0];
-            if(dpSelectedFile) {
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    document.getElementById('previewDpImage').src = ev.target.result;
-                    document.getElementById('previewDpImage').style.display = 'block';
-                    document.getElementById('dpUploadPlaceholder').style.display = 'none';
-                };
-                reader.readAsDataURL(dpSelectedFile);
+        document.getElementById('dpFile').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if(file) {
+                compressedBase64Image = await compressPhotoInstant(file);
+                document.getElementById('previewDpImage').src = compressedBase64Image;
+                document.getElementById('previewDpImage').style.display = 'block';
+                document.getElementById('dpUploadPlaceholder').style.display = 'none';
             }
         });
 
-        // --- SAVE / UPDATE PARTNER ---
-        dpForm.addEventListener('submit', async function(e) {
+        // --- SAVE / UPDATE PARTNER DIRECTLY TO REALTIME DB ---
+        dpForm.addEventListener('submit', function(e) {
             e.preventDefault();
 
             const editId = document.getElementById('editDpId').value;
             const btn = document.getElementById('saveDpBtn');
-            btn.innerText = "Saving...";
+            btn.innerText = "Saving Now...";
             btn.disabled = true;
 
-            try {
-                const dpData = {
-                    name: document.getElementById('dpName').value.trim(),
-                    phone: document.getElementById('dpPhone').value.trim(),
-                    vehicleNumber: document.getElementById('dpVehicle').value.trim().toUpperCase(),
-                    docNumber: document.getElementById('dpDocNo').value.trim(),
-                    address: document.getElementById('dpAddress').value.trim(),
-                    loginId: document.getElementById('dpLoginId').value.trim(),
-                    password: document.getElementById('dpPass').value.trim(),
-                    bankDetails: {
-                        bankName: document.getElementById('dpBank').value.trim(),
-                        accountNumber: document.getElementById('dpAcc').value.trim(),
-                        ifsc: document.getElementById('dpIfsc').value.trim().toUpperCase(),
-                        upiId: document.getElementById('dpUpi').value.trim()
-                    }
-                };
-
-                if(!editId) {
-                    dpData.status = 'offline';
-                    dpData.is_active = true;
-                    dpData.floatingCash = 0;
-                    dpData.createdAt = Date.now();
+            const dpData = {
+                name: document.getElementById('dpName').value.trim(),
+                phone: document.getElementById('dpPhone').value.trim(),
+                vehicleNumber: document.getElementById('dpVehicle').value.trim().toUpperCase(),
+                docNumber: document.getElementById('dpDocNo').value.trim(),
+                address: document.getElementById('dpAddress').value.trim(),
+                loginId: document.getElementById('dpLoginId').value.trim(),
+                password: document.getElementById('dpPass').value.trim(),
+                bankDetails: {
+                    bankName: document.getElementById('dpBank').value.trim(),
+                    accountNumber: document.getElementById('dpAcc').value.trim(),
+                    ifsc: document.getElementById('dpIfsc').value.trim().toUpperCase(),
+                    upiId: document.getElementById('dpUpi').value.trim()
                 }
+            };
 
-                if(dpSelectedFile) {
-                    btn.innerText = "Processing Photo...";
-                    dpData.image = await compressImageToBase64(dpSelectedFile, 300, 300, 0.7);
-                } else if(editId && allPartnersData[editId]) {
-                    dpData.image = allPartnersData[editId].image || "https://cdn-icons-png.flaticon.com/512/2972/2972185.png";
-                } else {
-                    dpData.image = "https://cdn-icons-png.flaticon.com/512/2972/2972185.png";
-                }
+            if(!editId) {
+                dpData.status = 'offline';
+                dpData.is_active = true;
+                dpData.floatingCash = 0;
+                dpData.createdAt = Date.now();
+            }
 
-                if(editId) {
-                    await update(ref(db, `delivery_partners/${editId}`), dpData);
-                } else {
-                    await push(ref(db, 'delivery_partners'), dpData);
-                }
+            if(compressedBase64Image) {
+                dpData.image = compressedBase64Image;
+            } else if(editId && allPartnersData[editId] && allPartnersData[editId].image) {
+                dpData.image = allPartnersData[editId].image;
+            } else {
+                dpData.image = "https://cdn-icons-png.flaticon.com/512/2972/2972185.png";
+            }
 
+            const dbPromise = editId 
+                ? database.ref('delivery_partners/' + editId).update(dpData)
+                : database.ref('delivery_partners').push(dpData);
+
+            dbPromise.then(() => {
                 btn.innerText = "Save Delivery Partner";
                 btn.disabled = false;
                 closeModal();
-            } catch (err) {
-                alert("Error saving partner: " + err.message);
+            }).catch((err) => {
+                alert("Database Error: " + err.message);
                 btn.innerText = "Save Delivery Partner";
                 btn.disabled = false;
-            }
+            });
         });
 
         // --- FETCH & DISPLAY PARTNERS ---
         const partnersGrid = document.getElementById('partnersGrid');
         let allPartnersData = {};
 
-        onValue(ref(db, 'delivery_partners'), (snapshot) => {
+        database.ref('delivery_partners').on('value', (snapshot) => {
             partnersGrid.innerHTML = '';
             allPartnersData = {};
             let total = 0, online = 0, blocked = 0;
@@ -489,7 +470,7 @@
                     document.getElementById('dpUpi').value = "";
                 }
 
-                dpSelectedFile = null;
+                compressedBase64Image = null;
                 if(data.image) {
                     document.getElementById('previewDpImage').src = data.image;
                     document.getElementById('previewDpImage').style.display = 'block';
@@ -505,14 +486,14 @@
             if(delBtn) {
                 const key = delBtn.getAttribute('data-key');
                 if(confirm("Are you sure you want to delete this delivery partner?")) {
-                    remove(ref(db, `delivery_partners/${key}`));
+                    database.ref('delivery_partners/' + key).remove();
                 }
             }
 
             if(e.target.classList.contains('toggle-active')) {
                 const key = e.target.getAttribute('data-key');
                 const newActive = e.target.checked;
-                update(ref(db, `delivery_partners/${key}`), { is_active: newActive });
+                database.ref('delivery_partners/' + key).update({ is_active: newActive });
             }
         });
     </script>
