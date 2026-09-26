@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Boy Admin - Master Orders History</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { display: flex; height: 100vh; background-color: #121212; color: #ffffff; overflow: hidden; }
+
+        /* --- SIDEBAR --- */
+        .sidebar { width: 280px; background-color: #1a1a2e; border-right: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column; overflow-y: auto; z-index: 10; }
+        .logo-section { padding: 25px 20px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .logo-section h2 { font-size: 24px; font-weight: 600; background: linear-gradient(45deg, #ff8a00, #e52e71); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .menu { padding: 20px 0; list-style: none; }
+        .menu-item { margin-bottom: 5px; }
+        .menu-btn { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; background: none; border: none; color: #b3b3b3; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s; text-align: left; }
+        .menu-btn:hover, .menu-btn.active { color: #fff; background: rgba(255, 255, 255, 0.05); border-left: 4px solid #ff8a00; }
+        .arrow { font-size: 12px; transition: transform 0.3s; }
+        .menu-btn.active .arrow { transform: rotate(180deg); }
+        .submenu { list-style: none; background-color: #151525; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .submenu li a { display: block; padding: 12px 25px 12px 50px; font-size: 13px; color: #888; text-decoration: none; transition: all 0.2s; cursor: pointer; }
+        .submenu li a:hover, .submenu li a.active-link { color: #ff8a00; background: rgba(255, 255, 255, 0.02); }
+
+        /* Main Content */
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; background: radial-gradient(circle at top right, #1a1a2e, #121212); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+        .header h1 { font-size: 26px; font-weight: 500; }
+
+        /* Filter Bar */
+        .filter-bar { display: flex; gap: 12px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); padding: 18px; border-radius: 14px; margin-bottom: 25px; align-items: flex-end; flex-wrap: wrap; }
+        .filter-group { flex: 1; min-width: 150px; }
+        .filter-group label { display: block; font-size: 11px; color: #b3b3b3; margin-bottom: 5px; }
+        .filter-group select, .filter-group input { width: 100%; padding: 10px 12px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; color: #fff; font-size: 13px; outline: none; }
+        .filter-group select option { background: #1a1a2e; color: #fff; }
+        .btn-filter { padding: 10px 20px; background: linear-gradient(45deg, #ff8a00, #e52e71); border: none; border-radius: 8px; color: #fff; font-weight: 600; font-size: 13px; cursor: pointer; height: 40px; }
+
+        /* Stats Row */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); padding: 18px; border-radius: 12px; }
+        .stat-card small { font-size: 11px; color: #aaa; text-transform: uppercase; display: block; margin-bottom: 5px; }
+        .stat-card h3 { font-size: 24px; font-weight: 700; color: #fff; }
+
+        /* Table */
+        .table-container { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 14px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+        th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 12.5px; vertical-align: middle; }
+        th { color: #888; font-weight: 600; font-size: 11px; text-transform: uppercase; background: rgba(0,0,0,0.25); }
+        tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+        .order-id-badge { color: #f59e0b; font-weight: 700; font-size: 13px; }
+        .status-select { padding: 5px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; background: #151525; color: #fff; border: 1px solid rgba(255,255,255,0.2); outline: none; cursor: pointer; }
+        .status-select.Delivered { border-color: #10b981; color: #10b981; }
+        .status-select.Cancelled, .status-select.Rejected { border-color: #ef4444; color: #ef4444; }
+        .status-select.Preparing, .status-select.Ready { border-color: #3b82f6; color: #3b82f6; }
+
+        .btn-view { padding: 6px 12px; background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; }
+        .btn-view:hover { background: #3b82f6; color: #fff; }
+
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.3s; z-index: 1000; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-card { background: #1a1a2e; border: 1px solid rgba(255, 255, 255, 0.1); padding: 25px; border-radius: 16px; width: 100%; max-width: 550px; max-height: 85vh; overflow-y: auto; position: relative; }
+        .close-modal { position: absolute; top: 20px; right: 20px; font-size: 20px; color: #888; cursor: pointer; }
+        .modal-card h2 { font-size: 18px; color: #ff8a00; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.06); font-size: 13px; }
+        .detail-row span { color: #999; }
+        .detail-row strong { color: #fff; text-align: right; max-width: 65%; }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #1a1a2e; }
+        ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <!-- MASTER SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo-section"><h2>Local Boy</h2></div>
+        <ul class="menu">
+            <li class="menu-item"><button class="menu-btn" onclick="window.location.href='dashboard.html'"><i class="fas fa-home"></i> Dashboard Overview</button></li>
+            
+            <li class="menu-item"><button class="menu-btn">Groceries Management <i class="fas fa-chevron-down arrow"></i></button>
+                <ul class="submenu"><li><a href="admin_groceries.html">Inventory / Add Items</a></li></ul>
+            </li>
+
+            <li class="menu-item"><button class="menu-btn">Customer App <i class="fas fa-chevron-down arrow"></i></button>
+                <ul class="submenu">
+                    <li><a href="promocode.html">Promocode</a></li>
+                    <li><a href="banners.html">Banners</a></li>
+                    <li><a href="customers.html">Customer Active/Block</a></li>
+                    <li><a href="delivery_charges.html">Delivery Charges</a></li>
+                    <li><a href="platform_fees.html">Platform Fees</a></li>
+                    <li><a href="wallet.html">Wallet Management</a></li>
+                </ul>
+            </li>
+
+            <li class="menu-item"><button class="menu-btn">Restaurant Partner <i class="fas fa-chevron-down arrow"></i></button>
+                <ul class="submenu">
+                    <li><a href="add_restaurant.html">Adding / Edit Restaurant</a></li>
+                    <li><a href="restaurant_menu.html">Restaurant Menu</a></li>
+                    <li><a href="restaurant_history.html">Restaurant History</a></li>
+                    <li><a href="restaurant_payout.html">Restaurant Payout</a></li>
+                    <li><a href="reviews.html">Reviews & Ratings</a></li>
+                </ul>
+            </li>
+
+            <li class="menu-item"><button class="menu-btn">Delivery Partner <i class="fas fa-chevron-down arrow"></i></button>
+                <ul class="submenu">
+                    <li><a href="dp_add_edit.html">Add/Edit Partner</a></li>
+                    <li><a href="dp_floating_cash.html">Floating Cash</a></li>
+                    <li><a href="dp_live_location.html">Live Location</a></li>
+                    <li><a href="dp_assign_order.html">Assign Order</a></li>
+                    <li><a href="dp_payouts.html">Partner Payouts</a></li>
+                    <li><a href="dp_settings.html">App Settings</a></li>
+                </ul>
+            </li>
+
+            <li class="menu-item"><button class="menu-btn active" style="justify-content: flex-start; gap: 10px; border-left: 4px solid #ff8a00;" onclick="window.location.href='orders_admin.html'"><i class="fas fa-shopping-bag"></i> Orders History</button></li>
+            <li class="menu-item"><button class="menu-btn" style="justify-content: flex-start; gap: 10px;" onclick="window.location.href='payouts_history.html'"><i class="fas fa-money-check"></i> Payouts History</button></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <div class="header">
+            <h1>Master Orders Control & History</h1>
+        </div>
+
+        <!-- FILTER BAR -->
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label>Search Order ID / Phone</label>
+                <input type="text" id="searchInput" placeholder="#LB... or Phone">
+            </div>
+            <div class="filter-group">
+                <label>Store / Restaurant</label>
+                <select id="storeFilter">
+                    <option value="ALL">All Restaurants & Groceries</option>
+                    <option value="grocery_store">🛒 Local Boy Groceries</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Order Status</label>
+                <select id="statusFilter">
+                    <option value="ALL">All Statuses</option>
+                    <option value="ACTIVE">🔥 Active / Ongoing</option>
+                    <option value="Delivered">✅ Delivered Only</option>
+                    <option value="Cancelled">❌ Cancelled / Rejected</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>From Date</label>
+                <input type="date" id="fromDate">
+            </div>
+            <div class="filter-group">
+                <label>To Date</label>
+                <input type="date" id="toDate">
+            </div>
+            <button class="btn-filter" onclick="renderOrdersTable()"><i class="fas fa-filter"></i> Apply</button>
+        </div>
+
+        <!-- STATS SUMMARY -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <small>Filtered Orders</small>
+                <h3 id="statTotalOrders">0</h3>
+            </div>
+            <div class="stat-card">
+                <small>Gross Sales (Delivered)</small>
+                <h3 id="statGrossSales" style="color: #3b82f6;">₹0</h3>
+            </div>
+            <div class="stat-card">
+                <small>Restaurant Share</small>
+                <h3 id="statRestShare" style="color: #f59e0b;">₹0</h3>
+            </div>
+            <div class="stat-card">
+                <small>Delivery Partner Share</small>
+                <h3 id="statRiderShare" style="color: #a855f7;">₹0</h3>
+            </div>
+            <div class="stat-card" style="border-color: rgba(16, 185, 129, 0.35);">
+                <small>Admin Net Revenue (Comm + Tax)</small>
+                <h3 id="statAdminProfit" style="color: #10b981;">₹0</h3>
+            </div>
+        </div>
+
+        <!-- ORDERS TABLE -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID & Time</th>
+                        <th>Customer</th>
+                        <th>Store / Restaurant</th>
+                        <th>Delivery Partner</th>
+                        <th>Total Bill</th>
+                        <th>Admin Profit</th>
+                        <th>Order Status</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersTableBody">
+                    <tr><td colspan="8" style="text-align:center; padding:40px; color:#888;">Loading all platform orders...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- ORDER DETAILS MODAL -->
+    <div class="modal-overlay" id="orderModal">
+        <div class="modal-card">
+            <i class="fas fa-xmark close-modal" onclick="closeOrderModal()"></i>
+            <h2 id="modalOrderId">Order Details</h2>
+            <div id="modalOrderBody"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
+        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
+
+        // EXACT FIREBASE CONFIGURATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyAvjFcKKiu4OMmQckYXMTejdBJh9tC6TjM",
+            authDomain: "sri-vishnu-priya-finance-c591f.firebaseapp.com",
+            databaseURL: "https://sri-vishnu-priya-finance-c591f-default-rtdb.firebaseio.com",
+            projectId: "sri-vishnu-priya-finance-c591f",
+            storageBucket: "sri-vishnu-priya-finance-c591f.firebasestorage.app",
+            messagingSenderId: "184676228358",
+            appId: "1:184676228358:web:c2b32b68debeeadadfd287",
+            measurementId: "G-E3TT96ZH1T"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        onAuthStateChanged(auth, (user) => { if (!user) window.location.href = "index.html"; });
+
+        // Sidebar dropdowns
+        document.querySelectorAll('.menu-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const submenu = this.nextElementSibling;
+                if(submenu && submenu.classList.contains('submenu')) {
+                    this.classList.toggle('active');
+                    submenu.style.maxHeight = submenu.style.maxHeight ? null : submenu.scrollHeight + "px";
+                }
+            });
+        });
+
+        // Set Default Date Range (1st of current month to Today)
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        document.getElementById('fromDate').value = `${yyyy}-${mm}-01`;
+        document.getElementById('toDate').value = `${yyyy}-${mm}-${dd}`;
+
+        let restaurantsMap = {};
+        let menusMap = {};
+        let groceriesMap = {};
+        let allOrdersList = [];
+
+        onValue(ref(db, 'restaurant_profiles'), (snap) => {
+            restaurantsMap = snap.val() || {};
+            const storeSelect = document.getElementById('storeFilter');
+            const currentVal = storeSelect.value;
+            storeSelect.innerHTML = `
+                <option value="ALL">All Restaurants & Groceries</option>
+                <option value="grocery_store">🛒 Local Boy Groceries</option>
+            `;
+            for(let id in restaurantsMap) {
+                const opt = document.createElement('option');
+                opt.value = id;
+                opt.textContent = `🍽️ ${restaurantsMap[id].name}`;
+                storeSelect.appendChild(opt);
+            }
+            if(currentVal) storeSelect.value = currentVal;
+            renderOrdersTable();
+        });
+
+        onValue(ref(db, 'restaurant_menus'), (snap) => {
+            menusMap = snap.val() || {};
+        });
+
+        onValue(ref(db, 'groceries'), (snap) => {
+            groceriesMap = snap.val() || {};
+        });
+
+        onValue(ref(db, 'orders'), (snap) => {
+            allOrdersList = [];
+            if(snap.exists()) {
+                snap.forEach(child => {
+                    const ord = child.val();
+                    ord.key = child.key;
+                    allOrdersList.push(ord);
+                });
+            }
+            allOrdersList.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            renderOrdersTable();
+        });
+
+        function calculateOrderFinancials(ord) {
+            const total = parseFloat(ord.totalAmount || 0);
+            const delFee = parseFloat(ord.deliveryFee || ord.deliveryCharges || 30);
+            const taxes = parseFloat(ord.taxes || ord.platformFees || 25);
+            const itemTotal = parseFloat(ord.itemTotal) || Math.max(0, total - delFee - taxes);
+
+            if(ord.restaurantId === 'grocery_store') {
+                // Groceries: 100% itemTotal + taxes goes to Admin, delFee to Rider
+                return {
+                    total: total,
+                    restNet: 0,
+                    riderNet: delFee,
+                    adminNet: Math.max(0, total - delFee)
+                };
+            }
+
+            let commPercent = parseFloat(ord.commissionPercent);
+            if(isNaN(commPercent)) {
+                commPercent = (restaurantsMap[ord.restaurantId] && parseFloat(restaurantsMap[ord.restaurantId].commission)) || 0;
+            }
+
+            const commAmt = (itemTotal * commPercent) / 100;
+            const restNet = Math.round(itemTotal - commAmt);
+            const adminNet = Math.round(commAmt + taxes);
+
+            return {
+                total: total,
+                restNet: restNet,
+                riderNet: delFee,
+                adminNet: adminNet
+            };
+        }
+
+        window.renderOrdersTable = function() {
+            const tbody = document.getElementById('ordersTableBody');
+            const searchQ = document.getElementById('searchInput').value.toLowerCase().trim();
+            const storeVal = document.getElementById('storeFilter').value;
+            const statusVal = document.getElementById('statusFilter').value;
+            const fromStr = document.getElementById('fromDate').value;
+            const toStr = document.getElementById('toDate').value;
+
+            const fromTime = fromStr ? new Date(fromStr + "T00:00:00").getTime() : 0;
+            const toTime = toStr ? new Date(toStr + "T23:59:59").getTime() : Infinity;
+
+            tbody.innerHTML = '';
+
+            let count = 0;
+            let grossSales = 0, restShare = 0, riderShare = 0, adminProfit = 0;
+
+            allOrdersList.forEach(ord => {
+                const ts = ord.timestamp || 0;
+                if(ts < fromTime || ts > toTime) return;
+
+                if(storeVal !== 'ALL' && ord.restaurantId !== storeVal) return;
+
+                const st = ord.status || 'Placed';
+                if(statusVal === 'ACTIVE') {
+                    if(st === 'Delivered' || st === 'Cancelled' || st === 'Rejected') return;
+                } else if(statusVal === 'Cancelled') {
+                    if(st !== 'Cancelled' && st !== 'Rejected') return;
+                } else if(statusVal !== 'ALL' && st !== statusVal) {
+                    return;
+                }
+
+                const ordIdStr = (ord.orderId || ord.key).toLowerCase();
+                const custPhone = (ord.customerPhone || ord.customerId || '').toLowerCase();
+                const custName = (ord.customerName || '').toLowerCase();
+                if(searchQ && !ordIdStr.includes(searchQ) && !custPhone.includes(searchQ) && !custName.includes(searchQ)) return;
+
+                count++;
+                const fin = calculateOrderFinancials(ord);
+
+                if(st === 'Delivered') {
+                    grossSales += fin.total;
+                    restShare += fin.restNet;
+                    riderShare += fin.riderNet;
+                    adminProfit += fin.adminNet;
+                }
+
+                const d = new Date(ts);
+                const dateStr = d.toLocaleDateString('en-IN', { day:'2-digit', month:'short' }) + ' • ' +
+                                d.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+
+                const storeName = ord.restaurantId === 'grocery_store'
+                    ? '<span style="color:#10b981; font-weight:600;">🛒 Local Boy Groceries</span>'
+                    : ((restaurantsMap[ord.restaurantId] && restaurantsMap[ord.restaurantId].name) || 'Restaurant');
+
+                const riderName = ord.deliveryPartnerName
+                    ? `<span style="color:#3b82f6; font-weight:600;"><i class="fas fa-motorcycle"></i> ${ord.deliveryPartnerName}</span>`
+                    : `<span style="color:#888; font-size:11px;">Unassigned</span>`;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <div class="order-id-badge">#${ord.orderId || ord.key.substring(0, 6)}</div>
+                        <div style="font-size:11px; color:#888;">${dateStr}</div>
+                    </td>
+                    <td>
+                        <strong>${ord.customerName || 'Customer'}</strong><br>
+                        <span style="font-size:11px; color:#aaa;">${ord.customerPhone || ord.customerId || ''}</span>
+                    </td>
+                    <td>${storeName}</td>
+                    <td>${riderName}</td>
+                    <td style="font-weight:700; color:#fff;">₹${Math.round(fin.total)}</td>
+                    <td style="font-weight:700; color:#10b981;">₹${Math.round(fin.adminNet)}</td>
+                    <td>
+                        <select class="status-select ${st}" data-key="${ord.key}">
+                            <option value="Placed" ${st === 'Placed' ? 'selected' : ''}>Placed</option>
+                            <option value="Preparing" ${st === 'Preparing' ? 'selected' : ''}>Preparing</option>
+                            <option value="Ready" ${st === 'Ready' ? 'selected' : ''}>Ready</option>
+                            <option value="On the Way" ${st === 'On the Way' ? 'selected' : ''}>On the Way</option>
+                            <option value="Delivered" ${st === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                            <option value="Cancelled" ${st === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button class="btn-view" data-key="${ord.key}"><i class="fas fa-eye"></i> View</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            if(count === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:40px; color:#888;">No orders found matching your filters.</td></tr>';
+            }
+
+            document.getElementById('statTotalOrders').innerText = count;
+            document.getElementById('statGrossSales').innerText = `₹${Math.round(grossSales)}`;
+            document.getElementById('statRestShare').innerText = `₹${Math.round(restShare)}`;
+            document.getElementById('statRiderShare').innerText = `₹${Math.round(riderShare)}`;
+            document.getElementById('statAdminProfit').innerText = `₹${Math.round(adminProfit)}`;
+        };
+
+        document.getElementById('searchInput').addEventListener('input', renderOrdersTable);
+
+        // Status Change & View Details Listeners
+        document.getElementById('ordersTableBody').addEventListener('change', (e) => {
+            if(e.target.classList.contains('status-select')) {
+                const key = e.target.getAttribute('data-key');
+                const newSt = e.target.value;
+                update(ref(db, `orders/${key}`), { status: newSt });
+            }
+        });
+
+        document.getElementById('ordersTableBody').addEventListener('click', (e) => {
+            const viewBtn = e.target.closest('.btn-view');
+            if(!viewBtn) return;
+            const key = viewBtn.getAttribute('data-key');
+            const ord = allOrdersList.find(o => o.key === key);
+            if(ord) openOrderDetailsModal(ord);
+        });
+
+        function openOrderDetailsModal(ord) {
+            const fin = calculateOrderFinancials(ord);
+            document.getElementById('modalOrderId').innerText = `Order #${ord.orderId || ord.key}`;
+
+            let itemsHtml = '';
+            const restMenu = menusMap[ord.restaurantId] || {};
+            if(ord.items) {
+                for(let id in ord.items) {
+                    const qty = ord.items[id];
+                    let iName = id;
+                    if(ord.restaurantId === 'grocery_store' && groceriesMap[id]) {
+                        iName = groceriesMap[id].name || groceriesMap[id].en || id;
+                    } else if(restMenu[id]) {
+                        iName = restMenu[id].name || id;
+                    }
+                    itemsHtml += `<div style="padding:4px 0; color:#10b981;"><strong>${qty}x</strong> <span style="color:#fff;">${iName}</span></div>`;
+                }
+            }
+
+            let addr = ord.deliveryAddress || 'N/A';
+            if(addr.includes('|')) addr = addr.split('|').join(' • ');
+
+            document.getElementById('modalOrderBody').innerHTML = `
+                <div class="detail-row"><span>Customer</span><strong>${ord.customerName || 'Guest'} (${ord.customerPhone || ''})</strong></div>
+                <div class="detail-row"><span>Delivery Address</span><strong>${addr}</strong></div>
+                <div class="detail-row"><span>Payment Mode</span><strong>${ord.paymentMethod || 'COD'}</strong></div>
+                <div class="detail-row"><span>Cooking Instructions</span><strong>${ord.instructions || 'None'}</strong></div>
+                <div style="margin:12px 0; padding:12px; background:rgba(0,0,0,0.3); border-radius:8px;">
+                    <div style="font-size:11px; color:#888; margin-bottom:6px; text-transform:uppercase;">Ordered Items</div>
+                    ${itemsHtml || 'No items listed'}
+                </div>
+                <div class="detail-row"><span>Customer Total Bill</span><strong style="color:#3b82f6;">₹${Math.round(fin.total)}</strong></div>
+                <div class="detail-row"><span>Restaurant Net Share</span><strong style="color:#f59e0b;">₹${Math.round(fin.restNet)}</strong></div>
+                <div class="detail-row"><span>Delivery Partner Fee</span><strong style="color:#a855f7;">₹${Math.round(fin.riderNet)}</strong></div>
+                <div class="detail-row" style="border:none;"><span>Admin Net Profit</span><strong style="color:#10b981; font-size:15px;">₹${Math.round(fin.adminNet)}</strong></div>
+            `;
+            document.getElementById('orderModal').classList.add('active');
+        }
+
+        window.closeOrderModal = function() {
+            document.getElementById('orderModal').classList.remove('active');
+        };
+    </script>
+</body>
+</html>
