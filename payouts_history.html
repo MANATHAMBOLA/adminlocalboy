@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Boy Admin - Master Payouts History</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { display: flex; height: 100vh; background-color: #121212; color: #ffffff; overflow: hidden; }
+
+        /* --- SIDEBAR --- */
+        .sidebar { width: 280px; background-color: #1a1a2e; border-right: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column; overflow-y: auto; z-index: 10; }
+        .logo-section { padding: 25px 20px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .logo-section h2 { font-size: 24px; font-weight: 600; background: linear-gradient(45deg, #ff8a00, #e52e71); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .menu { padding: 20px 0; list-style: none; }
+        .menu-item { margin-bottom: 5px; }
+        .menu-btn { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; background: none; border: none; color: #b3b3b3; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s; text-align: left; }
+        .menu-btn:hover, .menu-btn.active { color: #fff; background: rgba(255, 255, 255, 0.05); border-left: 4px solid #ff8a00; }
+        .arrow { font-size: 12px; transition: transform 0.3s; }
+        .menu-btn.active .arrow { transform: rotate(180deg); }
+        .submenu { list-style: none; background-color: #151525; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .submenu li a { display: block; padding: 12px 25px 12px 50px; font-size: 13px; color: #888; text-decoration: none; transition: all 0.2s; cursor: pointer; }
+        .submenu li a:hover, .submenu li a.active-link { color: #ff8a00; background: rgba(255, 255, 255, 0.02); }
+
+        /* Main Content */
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; background: radial-gradient(circle at top right, #1a1a2e, #121212); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+        .header h1 { font-size: 26px; font-weight: 500; }
+
+        /* Filter Bar */
+        .filter-bar { display: flex; gap: 14px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); padding: 18px; border-radius: 14px; margin-bottom: 25px; align-items: flex-end; flex-wrap: wrap; }
+        .filter-group { flex: 1; min-width: 160px; }
+        .filter-group label { display: block; font-size: 11px; color: #b3b3b3; margin-bottom: 5px; }
+        .filter-group select, .filter-group input { width: 100%; padding: 10px 12px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; color: #fff; font-size: 13px; outline: none; }
+        .filter-group select option { background: #1a1a2e; color: #fff; }
+        .btn-filter { padding: 10px 22px; background: linear-gradient(45deg, #ff8a00, #e52e71); border: none; border-radius: 8px; color: #fff; font-weight: 600; font-size: 13px; cursor: pointer; height: 40px; }
+
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 18px; margin-bottom: 25px; }
+        .stat-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); padding: 18px 20px; border-radius: 12px; }
+        .stat-card small { font-size: 11px; color: #aaa; text-transform: uppercase; display: block; margin-bottom: 6px; }
+        .stat-card h3 { font-size: 25px; font-weight: 700; color: #fff; }
+
+        /* Table */
+        .table-container { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 14px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 850px; }
+        th, td { padding: 14px 18px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 13px; vertical-align: middle; }
+        th { color: #888; font-weight: 600; font-size: 11px; text-transform: uppercase; background: rgba(0,0,0,0.25); }
+        tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+        .type-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
+        .badge-rest { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-dp { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+
+        .utr-pill { background: rgba(255, 255, 255, 0.08); color: #eee; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 12px; font-family: monospace; }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #1a1a2e; }
+        ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <!-- MASTER SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo-section"><h2>Local Boy</h2></div>
+        <ul class="menu">
+            <li class="menu-item"><button class="menu-btn" onclick="window.location.href='dashboard.html'"><i class="fas fa-home"></i> Dashboard Overview</button></li>
+            
+            <li class="menu-item"><button class="menu-btn">Groceries Management <i class="fas fa-chevron-down arrow"></i></button>
+                <ul class="submenu"><li><a href="admin_groceries.html">Inventory / Add Items</a></li></ul>
+            </li>
+
+            <li class="menu-item"><button class="menu-btn">Customer App <i class="fas fa-chevron-down arrow"></i></button>
+                <ul class="submenu">
+                    <li><a href="promocode.html">Promocode</a></li>
+                    <li><a href="banners.html">Banners</a></li>
+                    <li><a href="customers.html">Customer Active/Block</a></li>
+                    <li><a href="delivery_charges.html">Delivery Charges</a></li>
+                    <li><a href="platform_fees.html">Platform Fees</a></li>
+                    <li><a href="wallet.html">Wallet Management</a></li>
+                </ul>
+            </li>
+
+            <li class="menu-item"><button class="menu-btn">Restaurant Partner <i class="fas fa-chevron-down arrow"></i></button>
+                <ul class="submenu">
+                    <li><a href="add_restaurant.html">Adding / Edit Restaurant</a></li>
+                    <li><a href="restaurant_menu.html">Restaurant Menu</a></li>
+                    <li><a href="restaurant_history.html">Restaurant History</a></li>
+                    <li><a href="restaurant_payout.html">Restaurant Payout</a></li>
+                    <li><a href="reviews.html">Reviews & Ratings</a></li>
+                </ul>
+            </li>
+
+            <li class="menu-item"><button class="menu-btn">Delivery Partner <i class="fas fa-chevron-down arrow"></i></button>
+                <ul class="submenu">
+                    <li><a href="dp_add_edit.html">Add/Edit Partner</a></li>
+                    <li><a href="dp_floating_cash.html">Floating Cash</a></li>
+                    <li><a href="dp_live_location.html">Live Location</a></li>
+                    <li><a href="dp_assign_order.html">Assign Order</a></li>
+                    <li><a href="dp_payouts.html">Partner Payouts</a></li>
+                    <li><a href="dp_settings.html">App Settings</a></li>
+                </ul>
+            </li>
+
+            <li class="menu-item"><button class="menu-btn" style="justify-content: flex-start; gap: 10px;" onclick="window.location.href='orders_admin.html'"><i class="fas fa-shopping-bag"></i> Orders History</button></li>
+            <li class="menu-item"><button class="menu-btn active" style="justify-content: flex-start; gap: 10px; border-left: 4px solid #ff8a00;" onclick="window.location.href='payouts_history.html'"><i class="fas fa-money-check"></i> Payouts History</button></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <div class="header">
+            <h1>Master Payouts Ledger (Restaurants & Riders)</h1>
+        </div>
+
+        <!-- FILTER BAR -->
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label>Search Partner Name / UTR</label>
+                <input type="text" id="searchInput" placeholder="Name or UTR ID...">
+            </div>
+            <div class="filter-group">
+                <label>Payout Category</label>
+                <select id="typeFilter">
+                    <option value="ALL">All Payouts (Restaurants + Riders)</option>
+                    <option value="RESTAURANT">🍽️ Restaurant Partners Only</option>
+                    <option value="RIDER">🛵 Delivery Partners Only</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>From Date</label>
+                <input type="date" id="fromDate">
+            </div>
+            <div class="filter-group">
+                <label>To Date</label>
+                <input type="date" id="toDate">
+            </div>
+            <button class="btn-filter" onclick="renderPayoutsLedger()"><i class="fas fa-filter"></i> Filter</button>
+        </div>
+
+        <!-- STATS SUMMARY -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <small>Total Transactions</small>
+                <h3 id="statTxnCount">0</h3>
+            </div>
+            <div class="stat-card">
+                <small>Paid to Restaurants</small>
+                <h3 id="statRestPaid" style="color: #f59e0b;">₹0</h3>
+            </div>
+            <div class="stat-card">
+                <small>Paid to Delivery Partners</small>
+                <h3 id="statRiderPaid" style="color: #3b82f6;">₹0</h3>
+            </div>
+            <div class="stat-card" style="border-color: rgba(16, 185, 129, 0.35);">
+                <small>Grand Total Disbursed</small>
+                <h3 id="statGrandTotal" style="color: #10b981;">₹0</h3>
+            </div>
+        </div>
+
+        <!-- PAYOUTS TABLE -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Paid Date & Time</th>
+                        <th>Partner Category</th>
+                        <th>Recipient Name</th>
+                        <th>Settlement Period</th>
+                        <th>Payment Mode</th>
+                        <th>UTR / Reference ID</th>
+                        <th>Paid Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="payoutsTableBody">
+                    <tr><td colspan="7" style="text-align:center; padding:40px; color:#888;">Loading master payouts ledger...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
+
+        // EXACT FIREBASE CONFIGURATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyAvjFcKKiu4OMmQckYXMTejdBJh9tC6TjM",
+            authDomain: "sri-vishnu-priya-finance-c591f.firebaseapp.com",
+            databaseURL: "https://sri-vishnu-priya-finance-c591f-default-rtdb.firebaseio.com",
+            projectId: "sri-vishnu-priya-finance-c591f",
+            storageBucket: "sri-vishnu-priya-finance-c591f.firebasestorage.app",
+            messagingSenderId: "184676228358",
+            appId: "1:184676228358:web:c2b32b68debeeadadfd287",
+            measurementId: "G-E3TT96ZH1T"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        onAuthStateChanged(auth, (user) => { if (!user) window.location.href = "index.html"; });
+
+        // Sidebar dropdowns
+        document.querySelectorAll('.menu-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const submenu = this.nextElementSibling;
+                if(submenu && submenu.classList.contains('submenu')) {
+                    this.classList.toggle('active');
+                    submenu.style.maxHeight = submenu.style.maxHeight ? null : submenu.scrollHeight + "px";
+                }
+            });
+        });
+
+        // Default Dates (Current Month)
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        document.getElementById('fromDate').value = `${yyyy}-${mm}-01`;
+        document.getElementById('toDate').value = `${yyyy}-${mm}-${dd}`;
+
+        let restProfiles = {};
+        let dpProfiles = {};
+        let restPayoutsRaw = {};
+        let dpPayoutsRaw = {};
+
+        onValue(ref(db, 'restaurant_profiles'), (snap) => {
+            restProfiles = snap.val() || {};
+            renderPayoutsLedger();
+        });
+
+        onValue(ref(db, 'delivery_partners'), (snap) => {
+            dpProfiles = snap.val() || {};
+            renderPayoutsLedger();
+        });
+
+        onValue(ref(db, 'restaurant_payouts'), (snap) => {
+            restPayoutsRaw = snap.val() || {};
+            renderPayoutsLedger();
+        });
+
+        onValue(ref(db, 'dp_payouts'), (snap) => {
+            dpPayoutsRaw = snap.val() || {};
+            renderPayoutsLedger();
+        });
+
+        window.renderPayoutsLedger = function() {
+            const tbody = document.getElementById('payoutsTableBody');
+            const searchQ = document.getElementById('searchInput').value.toLowerCase().trim();
+            const typeVal = document.getElementById('typeFilter').value;
+            const fromStr = document.getElementById('fromDate').value;
+            const toStr = document.getElementById('toDate').value;
+
+            const fromTime = fromStr ? new Date(fromStr + "T00:00:00").getTime() : 0;
+            const toTime = toStr ? new Date(toStr + "T23:59:59").getTime() : Infinity;
+
+            let combinedList = [];
+
+            // 1. Collect Restaurant Payouts
+            for(let restId in restPayoutsRaw) {
+                const group = restPayoutsRaw[restId];
+                const fallbackName = (restProfiles[restId] && restProfiles[restId].name) || 'Restaurant Partner';
+                for(let payKey in group) {
+                    const p = group[payKey];
+                    combinedList.push({
+                        category: 'RESTAURANT',
+                        name: p.restName || fallbackName,
+                        amount: parseFloat(p.paidAmount || 0),
+                        mode: p.payType || 'Transfer',
+                        txnId: p.txnId || '-',
+                        fromDate: p.fromDate || '-',
+                        toDate: p.toDate || '-',
+                        timestamp: p.timestamp || 0
+                    });
+                }
+            }
+
+            // 2. Collect Delivery Partner Payouts
+            for(let dpId in dpPayoutsRaw) {
+                const group = dpPayoutsRaw[dpId];
+                const fallbackName = (dpProfiles[dpId] && dpProfiles[dpId].name) || 'Delivery Partner';
+                for(let payKey in group) {
+                    const p = group[payKey];
+                    combinedList.push({
+                        category: 'RIDER',
+                        name: p.dpName || fallbackName,
+                        amount: parseFloat(p.paidAmount || 0),
+                        mode: p.payType || 'Transfer',
+                        txnId: p.txnId || '-',
+                        fromDate: p.fromDate || '-',
+                        toDate: p.toDate || '-',
+                        timestamp: p.timestamp || 0
+                    });
+                }
+            }
+
+            // Sort Newest First
+            combinedList.sort((a, b) => b.timestamp - a.timestamp);
+
+            tbody.innerHTML = '';
+            let txnCount = 0;
+            let restPaidTotal = 0;
+            let riderPaidTotal = 0;
+
+            combinedList.forEach(item => {
+                if(item.timestamp < fromTime || item.timestamp > toTime) return;
+                if(typeVal !== 'ALL' && item.category !== typeVal) return;
+
+                if(searchQ && !item.name.toLowerCase().includes(searchQ) && !item.txnId.toLowerCase().includes(searchQ)) return;
+
+                txnCount++;
+                if(item.category === 'RESTAURANT') restPaidTotal += item.amount;
+                else riderPaidTotal += item.amount;
+
+                const d = new Date(item.timestamp);
+                const dateStr = d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) + ' • ' +
+                                d.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+
+                const catBadge = item.category === 'RESTAURANT'
+                    ? `<span class="type-badge badge-rest"><i class="fas fa-utensils"></i> Restaurant</span>`
+                    : `<span class="type-badge badge-dp"><i class="fas fa-motorcycle"></i> Delivery Partner</span>`;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="color:#aaa;">${dateStr}</td>
+                    <td>${catBadge}</td>
+                    <td><strong style="color:#fff; font-size:14px;">${item.name}</strong></td>
+                    <td style="color:#aaa; font-size:12px;">${item.fromDate} to ${item.toDate}</td>
+                    <td>${item.mode}</td>
+                    <td><span class="utr-pill">${item.txnId}</span></td>
+                    <td style="color:#10b981; font-weight:700; font-size:15px;">₹${Math.round(item.amount)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            if(txnCount === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:40px; color:#888;">No payout records found for selected filters.</td></tr>';
+            }
+
+            document.getElementById('statTxnCount').innerText = txnCount;
+            document.getElementById('statRestPaid').innerText = `₹${Math.round(restPaidTotal)}`;
+            document.getElementById('statRiderPaid').innerText = `₹${Math.round(riderPaidTotal)}`;
+            document.getElementById('statGrandTotal').innerText = `₹${Math.round(restPaidTotal + riderPaidTotal)}`;
+        };
+
+        document.getElementById('searchInput').addEventListener('input', renderPayoutsLedger);
+        document.getElementById('typeFilter').addEventListener('change', renderPayoutsLedger);
+    </script>
+</body>
+</html>
