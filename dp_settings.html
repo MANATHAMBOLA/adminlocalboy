@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Boy Admin - Delivery Partner Settings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { display: flex; height: 100vh; background-color: #121212; color: #ffffff; overflow: hidden; }
+
+        /* --- SIDEBAR --- */
+        .sidebar { width: 280px; background-color: #1a1a2e; border-right: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column; overflow-y: auto; z-index: 10; }
+        .logo-section { padding: 25px 20px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .logo-section h2 { font-size: 24px; font-weight: 600; background: linear-gradient(45deg, #ff8a00, #e52e71); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .menu { padding: 20px 0; list-style: none; }
+        .menu-item { margin-bottom: 5px; }
+        .menu-btn { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; background: none; border: none; color: #b3b3b3; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s; text-align: left; }
+        .menu-btn:hover, .menu-btn.active { color: #fff; background: rgba(255, 255, 255, 0.05); border-left: 4px solid #ff8a00; }
+        .arrow { font-size: 12px; transition: transform 0.3s; }
+        .menu-btn.active .arrow { transform: rotate(180deg); }
+        .submenu { list-style: none; background-color: #151525; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .submenu li a { display: block; padding: 12px 25px 12px 50px; font-size: 13px; color: #888; text-decoration: none; transition: all 0.2s; cursor: pointer; }
+        .submenu li a:hover, .submenu li a.active-link { color: #ff8a00; background: rgba(255, 255, 255, 0.02); }
+
+        /* Main Content */
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; background: radial-gradient(circle at top right, #1a1a2e, #121212); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .header h1 { font-size: 26px; font-weight: 500; }
+
+        .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 22px; max-width: 1100px; }
+        .settings-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 16px; padding: 25px; backdrop-filter: blur(10px); }
+        .settings-card h3 { font-size: 16px; font-weight: 600; color: #ff8a00; margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); display: flex; align-items: center; gap: 10px; }
+
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 12px; color: #b3b3b3; margin-bottom: 6px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px 14px; background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; color: #fff; font-size: 13px; outline: none; transition: 0.2s; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #ff8a00; }
+        .form-group select option { background: #1a1a2e; color: #fff; }
+
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px dashed rgba(255, 255, 255, 0.08); }
+        .toggle-row:last-child { border-bottom: none; }
+        .toggle-info h4 { font-size: 14px; font-weight: 500; color: #fff; }
+        .toggle-info p { font-size: 11px; color: #888; margin-top: 2px; }
+
+        /* Switch */
+        .switch { position: relative; display: inline-block; width: 46px; height: 24px; flex-shrink: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ef4444; transition: .3s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background-color: #10b981; }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        .save-bar { max-width: 1100px; margin-top: 25px; display: flex; justify-content: flex-end; }
+        .btn-save { padding: 14px 35px; background: linear-gradient(45deg, #ff8a00, #e52e71); color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; box-shadow: 0 8px 20px rgba(229, 46, 113, 0.3); transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+        .btn-save:hover { transform: translateY(-2px); }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1a1a2e; }
+        ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <!-- MASTER SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo-section"><h2>Local Boy</h2></div>
+        <ul class="menu">
+            <li class="menu-item"><button class="menu-btn" onclick="window.location.href='dashboard.html'"><i class="fas fa-home"></i> Dashboard Overview</button></li>
+            
+            <li class="menu-item"><button class="menu-btn">Groceries Management <i class="fas fa-chevron-down arrow"></i></button>
+                <ul class="submenu"><li><a href="admin_groceries.html">Inventory / Add Items</a></li></ul>
+            </li>
+
+            <li class="menu-item"><button class="menu-btn">Customer App <i class="fas fa-chevron-down arrow"></i></button>
+                <ul class="submenu">
+                    <li><a href="promocode.html">Promocode</a></li>
+                    <li><a href="banners.html">Banners</a></li>
+                    <li><a href="customers.html">Customer Active/Block</a></li>
+                    <li><a href="delivery_charges.html">Delivery Charges</a></li>
+                    <li><a href="platform_fees.html">Platform Fees</a></li>
+                    <li><a href="wallet.html">Wallet Management</a></li>
+                </ul>
+            </li>
+
+            <li class="menu-item"><button class="menu-btn">Restaurant Partner <i class="fas fa-chevron-down arrow"></i></button>
+                <ul class="submenu">
+                    <li><a href="add_restaurant.html">Adding / Edit Restaurant</a></li>
+                    <li><a href="restaurant_menu.html">Restaurant Menu</a></li>
+                    <li><a href="restaurant_history.html">Restaurant History</a></li>
+                    <li><a href="restaurant_payout.html">Restaurant Payout</a></li>
+                    <li><a href="reviews.html">Reviews & Ratings</a></li>
+                </ul>
+            </li>
+
+            <li class="menu-item">
+                <button class="menu-btn active" style="border-left: 4px solid #ff8a00;">Delivery Partner <i class="fas fa-chevron-down arrow"></i></button>
+                <ul class="submenu" style="max-height: 500px;">
+                    <li><a href="dp_add_edit.html">Add/Edit Partner</a></li>
+                    <li><a href="dp_floating_cash.html">Floating Cash</a></li>
+                    <li><a href="dp_live_location.html">Live Location</a></li>
+                    <li><a href="dp_assign_order.html">Assign Order</a></li>
+                    <li><a href="dp_payouts.html">Partner Payouts</a></li>
+                    <li><a href="dp_settings.html" class="active-link" style="color: #ff8a00;">App Settings</a></li>
+                </ul>
+            </li>
+
+            <li class="menu-item"><button class="menu-btn" style="justify-content: flex-start; gap: 10px;" onclick="window.location.href='orders_admin.html'"><i class="fas fa-shopping-bag"></i> Orders History</button></li>
+            <li class="menu-item"><button class="menu-btn" style="justify-content: flex-start; gap: 10px;" onclick="window.location.href='payouts_history.html'"><i class="fas fa-money-check"></i> Payouts History</button></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <div class="header">
+            <h1>Delivery Partner App Settings</h1>
+        </div>
+
+        <form id="dpSettingsForm">
+            <div class="settings-grid">
+                
+                <!-- 1. EARNINGS & PAYOUT RULES -->
+                <div class="settings-card">
+                    <h3><i class="fas fa-sack-dollar"></i> Partner Earning Rules</h3>
+                    <div class="form-group">
+                        <label>How should Delivery Partner Earnings be calculated?</label>
+                        <select id="earningType">
+                            <option value="full_delivery_fee">Give 100% of Customer Delivery Fee to Rider</option>
+                            <option value="fixed_base">Custom Base Pay + Extra KM Rate</option>
+                        </select>
+                    </div>
+
+                    <div class="two-col" id="customRateBox" style="display: none;">
+                        <div class="form-group">
+                            <label>Base Pay (Up to 2 KM) (₹)</label>
+                            <input type="number" id="basePay" value="25" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Extra Pay per KM (After 2 KM) (₹)</label>
+                            <input type="number" id="perKmPay" value="8" min="0">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Daily / Per-Order Incentive Bonus (Optional ₹)</label>
+                        <input type="number" id="orderBonus" value="0" min="0" placeholder="0">
+                    </div>
+                </div>
+
+                <!-- 2. FLOATING CASH & DISPATCH CONTROLS -->
+                <div class="settings-card">
+                    <h3><i class="fas fa-sliders"></i> Dispatch & Floating Cash Controls</h3>
+                    
+                    <div class="two-col">
+                        <div class="form-group">
+                            <label>Max Floating Cash Limit (₹)</label>
+                            <input type="number" id="floatingCashLimit" value="2000" min="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Max Rider Search Radius (KM)</label>
+                            <input type="number" id="maxRadiusKm" value="10" min="1" required>
+                        </div>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <h4>Auto-Assign Orders (Nearest Free Rider)</h4>
+                            <p>Automatically assign Preparing/Ready orders to closest online rider</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="autoAssign" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <h4>Pause Orders on Cash Limit Exceeded</h4>
+                            <p>Stop assigning new COD orders if rider exceeds floating cash limit</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="blockOnCashLimit" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 3. PARTNER APP SUPPORT & ANNOUNCEMENT -->
+                <div class="settings-card" style="grid-column: 1 / -1;">
+                    <h3><i class="fas fa-bullhorn"></i> Partner Support & Notice Board</h3>
+                    <div class="two-col">
+                        <div class="form-group">
+                            <label>Admin Helpline Number (For Riders in Emergency)</label>
+                            <input type="tel" id="supportPhone" placeholder="e.g., +91 9876543210">
+                        </div>
+                        <div class="form-group">
+                            <label>Admin UPI ID (For Riders to Pay Floating Cash)</label>
+                            <input type="text" id="adminUpiId" placeholder="e.g., localboyadmin@ybl">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>Live Announcement Banner on Delivery Partner App (Optional)</label>
+                        <textarea id="partnerNotice" rows="2" placeholder="e.g., Heavy rain alert: Extra ₹10 surge bonus on every order tonight!"></textarea>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="save-bar">
+                <button type="submit" class="btn-save" id="saveSettingsBtn">
+                    <i class="fas fa-save"></i> Save All Partner Settings
+                </button>
+            </div>
+        </form>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
+        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
+
+        // EXACT FIREBASE CONFIGURATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyAvjFcKKiu4OMmQckYXMTejdBJh9tC6TjM",
+            authDomain: "sri-vishnu-priya-finance-c591f.firebaseapp.com",
+            databaseURL: "https://sri-vishnu-priya-finance-c591f-default-rtdb.firebaseio.com",
+            projectId: "sri-vishnu-priya-finance-c591f",
+            storageBucket: "sri-vishnu-priya-finance-c591f.firebasestorage.app",
+            messagingSenderId: "184676228358",
+            appId: "1:184676228358:web:c2b32b68debeeadadfd287",
+            measurementId: "G-E3TT96ZH1T"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        onAuthStateChanged(auth, (user) => { if (!user) window.location.href = "index.html"; });
+
+        // Sidebar dropdowns
+        document.querySelectorAll('.menu-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const submenu = this.nextElementSibling;
+                if(submenu && submenu.classList.contains('submenu')) {
+                    this.classList.toggle('active');
+                    submenu.style.maxHeight = submenu.style.maxHeight ? null : submenu.scrollHeight + "px";
+                }
+            });
+        });
+
+        const earningSelect = document.getElementById('earningType');
+        const customRateBox = document.getElementById('customRateBox');
+
+        earningSelect.addEventListener('change', () => {
+            customRateBox.style.display = earningSelect.value === 'fixed_base' ? 'grid' : 'none';
+        });
+
+        // Load Existing Settings
+        const settingsRef = ref(db, 'settings/dp_settings');
+        onValue(settingsRef, (snap) => {
+            if(!snap.exists()) return;
+            const s = snap.val();
+
+            if(s.earningType) {
+                earningSelect.value = s.earningType;
+                customRateBox.style.display = s.earningType === 'fixed_base' ? 'grid' : 'none';
+            }
+            if(s.basePay !== undefined) document.getElementById('basePay').value = s.basePay;
+            if(s.perKmPay !== undefined) document.getElementById('perKmPay').value = s.perKmPay;
+            if(s.orderBonus !== undefined) document.getElementById('orderBonus').value = s.orderBonus;
+
+            if(s.floatingCashLimit !== undefined) document.getElementById('floatingCashLimit').value = s.floatingCashLimit;
+            if(s.maxRadiusKm !== undefined) document.getElementById('maxRadiusKm').value = s.maxRadiusKm;
+            if(s.autoAssign !== undefined) document.getElementById('autoAssign').checked = s.autoAssign;
+            if(s.blockOnCashLimit !== undefined) document.getElementById('blockOnCashLimit').checked = s.blockOnCashLimit;
+
+            if(s.supportPhone !== undefined) document.getElementById('supportPhone').value = s.supportPhone;
+            if(s.adminUpiId !== undefined) document.getElementById('adminUpiId').value = s.adminUpiId;
+            if(s.partnerNotice !== undefined) document.getElementById('partnerNotice').value = s.partnerNotice;
+        });
+
+        // Save Settings
+        document.getElementById('dpSettingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('saveSettingsBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            btn.disabled = true;
+
+            const payload = {
+                earningType: earningSelect.value,
+                basePay: parseFloat(document.getElementById('basePay').value) || 25,
+                perKmPay: parseFloat(document.getElementById('perKmPay').value) || 8,
+                orderBonus: parseFloat(document.getElementById('orderBonus').value) || 0,
+                floatingCashLimit: parseFloat(document.getElementById('floatingCashLimit').value) || 2000,
+                maxRadiusKm: parseFloat(document.getElementById('maxRadiusKm').value) || 10,
+                autoAssign: document.getElementById('autoAssign').checked,
+                blockOnCashLimit: document.getElementById('blockOnCashLimit').checked,
+                supportPhone: document.getElementById('supportPhone').value.trim(),
+                adminUpiId: document.getElementById('adminUpiId').value.trim(),
+                partnerNotice: document.getElementById('partnerNotice').value.trim(),
+                updatedAt: Date.now()
+            };
+
+            try {
+                await update(settingsRef, payload);
+                btn.innerHTML = '<i class="fas fa-check"></i> Saved Successfully!';
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-save"></i> Save All Partner Settings';
+                    btn.disabled = false;
+                }, 1500);
+            } catch (err) {
+                alert("Error saving settings: " + err.message);
+                btn.innerHTML = '<i class="fas fa-save"></i> Save All Partner Settings';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
